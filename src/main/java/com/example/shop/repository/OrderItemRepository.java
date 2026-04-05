@@ -1,0 +1,12 @@
+package com.example.shop.repository;
+
+import com.example.shop.entity.OrderItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
+
+    //Получить все товары конкретного заказа
+    List<OrderItem> findAllByOrderId(Long orderId);
+}

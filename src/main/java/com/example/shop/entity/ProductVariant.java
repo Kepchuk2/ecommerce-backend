@@ -1,0 +1,63 @@
+package com.example.shop.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "product_variants",
+        indexes = {
+        @Index(name = "idx_product_variants_product", columnList = "product_id")
+})
+@Getter
+@NoArgsConstructor
+public class ProductVariant {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_variants_seq")
+    @SequenceGenerator(name = "product_variants_seq", sequenceName = "product_variants_seq", allocationSize = 1)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String sku;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
+
+    private String size;
+    private String color;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
+    public ProductVariant(String sku, BigDecimal price, String size, String color) {
+        if (sku == null || sku.isBlank()) {
+            throw new IllegalArgumentException("SKU must not be blank");
+        }
+
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price must be greater than or equal to zero");
+        }
+
+        this.sku = sku;
+        this.price = price;
+        this.size = size;
+        this.color = color;
+    }
+
+    void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public void changePrice(BigDecimal price) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price must be greater than or equal to zero");
+        }
+
+        this.price = price;
+    }
+}
