@@ -75,11 +75,9 @@ public class Product {
 
     public void addImage(ProductImage image) {
         validationProductImage(image);
+
         if (image.getProduct() != null && image.getProduct() != this) {
             throw new IllegalStateException("Image already belongs to another product");
-        }
-        if (productImages.contains(image)) {
-            return;
         }
 
         productImages.add(image);
