@@ -1,6 +1,8 @@
 package com.example.shop.dto.product;
 
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +16,8 @@ import java.math.BigDecimal;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChangeVariantPriceRequest {
 
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = true)
     BigDecimal newPrice;
 
 }

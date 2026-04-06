@@ -77,6 +77,9 @@ public class Product {
         if (image.getProduct() != null && image.getProduct() != this) {
             throw new IllegalStateException("Image already belongs to another product");
         }
+        if (productImages.contains(image)) {
+            return;
+        }
 
         productImages.add(image);
         image.setProduct(this);

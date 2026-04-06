@@ -48,9 +48,7 @@ public class Cart {
     }
 
     public void addItem(CartItem item) {
-        if (item == null) {
-            throw new IllegalArgumentException("Cart item must not be null");
-        }
+        validateCartItem(item);
         if (items.contains(item)) {
             return;
         }
@@ -63,9 +61,7 @@ public class Cart {
     }
 
     public void removeItem(CartItem item) {
-        if (item == null) {
-            throw new IllegalArgumentException("Cart item must not be null");
-        }
+        validateCartItem(item);
 
         if (items.remove(item)) {
             item.setCart(null);
@@ -111,5 +107,11 @@ public class Cart {
 
         this.user = user;
         user.assignCart(this);
+    }
+
+    private void validateCartItem(CartItem item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Cart item must not be null");
+        }
     }
 }

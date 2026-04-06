@@ -39,9 +39,7 @@ public class ProductVariant {
             throw new IllegalArgumentException("SKU must not be blank");
         }
 
-        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Price must be greater than or equal to zero");
-        }
+        validatePrice(price);
 
         this.sku = sku;
         this.price = price;
@@ -54,10 +52,14 @@ public class ProductVariant {
     }
 
     public void changePrice(BigDecimal price) {
+        validatePrice(price);
+
+        this.price = price;
+    }
+
+    private void validatePrice(BigDecimal price) {
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Price must be greater than or equal to zero");
         }
-
-        this.price = price;
     }
 }

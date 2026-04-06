@@ -31,7 +31,7 @@ public final class OrderMapper {
 
     }
 
-    private static List<OrderItemResponse> toItemResponseList(List<OrderItem> items) {
+    private static List<OrderItemResponse> toOrderItemResponseList(List<OrderItem> items) {
         List<OrderItemResponse> responses = new ArrayList<>();
 
         if (items == null) {
@@ -48,7 +48,7 @@ public final class OrderMapper {
     }
 
 
-    public static OrderResponse toResponse(Order order) {
+    public static OrderResponse toOrderResponse(Order order) {
         if (order == null) {
             return null;
         }
@@ -67,12 +67,12 @@ public final class OrderMapper {
         response.setTrackingNumber(order.getTrackingNumber());
         response.setCreatedAt(order.getCreatedAt());
         response.setUpdatedAt(order.getUpdatedAt());
-        response.setItems(toItemResponseList(order.getItems()));
+        response.setItems(toOrderItemResponseList(order.getItems()));
 
         return  response;
     }
 
-    public static List<OrderResponse> toResponseList(List<Order> orders) {
+    public static List<OrderResponse> toOrderResponseList(List<Order> orders) {
         List<OrderResponse> responses = new ArrayList<>();
 
         if (orders == null) {
@@ -81,7 +81,7 @@ public final class OrderMapper {
 
         for (Order order : orders) {
             if (order != null) {
-            responses.add(toResponse(order));
+            responses.add(toOrderResponse(order));
             }
         }
         return responses;

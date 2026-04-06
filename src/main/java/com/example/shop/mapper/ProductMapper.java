@@ -91,4 +91,20 @@ public final class ProductMapper {
 
         return response;
     }
+
+    public static List<ProductResponse> toProductResponseList(List<Product> products) {
+        if (products == null) {
+            return List.of();
+        }
+
+        List<ProductResponse> responses = new ArrayList<>();
+
+        for (Product product : products) {
+            if (product != null) {
+                responses.add(toProductResponse(product));
+            }
+        }
+
+        return responses;
+    }
 }

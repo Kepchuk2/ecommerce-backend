@@ -20,7 +20,7 @@ public class AddProductVariantRequest {
     String sku;
 
     @NotNull
-    @DecimalMin(value = "0.0", inclusive = false)
+    @DecimalMin(value = "0.0", inclusive = true)
     BigDecimal price;
 
     String size;

@@ -4,10 +4,7 @@ import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductCategory;
 import com.example.shop.entity.ProductImage;
 import com.example.shop.entity.ProductVariant;
-import com.example.shop.exception.ImageNotFoundException;
-import com.example.shop.exception.ProductNotFoundException;
-import com.example.shop.exception.VariantAlreadyExistsException;
-import com.example.shop.exception.VariantNotFoundException;
+import com.example.shop.exception.*;
 import com.example.shop.repository.ProductRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +24,7 @@ public class ProductService {
     private final ProductVariantRepository variantRepository;
 
     public Product getByProductId(Long productId) {
-        if (productId == null) {
-            throw new IllegalArgumentException("Product id cannot be null");
-        }
+        validateProductId(productId);
 
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
@@ -43,17 +38,18 @@ public class ProductService {
         return productRepository.findByCategory(category);
     }
 
-    public Optional<ProductVariant> getVariantBySku(String sku) {
-        if (sku == null) {
-            throw new IllegalArgumentException("Sku cannot be null");
+    public ProductVariant getVariantBySku(String sku) {
+        if (sku == null || sku.isBlank()) {
+            throw new IllegalArgumentException("Sku cannot be null or blank");
         }
 
-        return variantRepository.findBySku(sku);
+        return variantRepository.findBySku(sku)
+                .orElseThrow(() -> new ProductVariantNotFoundException(sku));
     }
 
     public List<Product> searchProductByName(String productName) {
-        if (productName == null) {
-            throw new IllegalArgumentException("Product name cannot be null");
+        if (productName == null || productName.isBlank()) {
+            throw new IllegalArgumentException("Product name cannot be null or blank");
         }
 
         return productRepository.findByNameContainingIgnoreCase(productName);
@@ -64,10 +60,8 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public Product addVariantToProduct(Long productId, String sku, BigDecimal price, String size, String color) {
-        if (productId == null) {
-            throw new IllegalArgumentException("Product id cannot be null");
-        }
+    public ProductVariant addVariantToProduct(Long productId, String sku, BigDecimal price, String size, String color) {
+        validateProductId(productId);
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
@@ -79,16 +73,13 @@ public class ProductService {
         ProductVariant productVariant = new ProductVariant(sku, price, size, color);
 
         product.addVariant(productVariant);
-        return productRepository.save(product);
+        productRepository.save(product);
+        return  productVariant;
     }
 
-    public Product removeVariantFromProduct(Long productId, Long variantId) {
-        if (productId == null) {
-            throw new IllegalArgumentException("Product id cannot be null");
-        }
-        if (variantId == null) {
-            throw new IllegalArgumentException("Variant id cannot be null");
-        }
+    public ProductVariant removeVariantFromProduct(Long productId, Long variantId) {
+        validateProductId(productId);
+        validateVariantId(variantId);
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
@@ -100,13 +91,12 @@ public class ProductService {
         }
 
         product.removeVariant(variant);
-        return productRepository.save(product);
+        productRepository.save(product);
+        return variant;
     }
 
     public Product addImageToProduct(Long productId, String imageUrl, String altText, int position) {
-        if (productId == null) {
-            throw new IllegalArgumentException("Product id cannot be null");
-        }
+        validateProductId(productId);
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
@@ -118,9 +108,7 @@ public class ProductService {
     }
 
     public Product removeImageFromProduct(Long productId, Long imageId) {
-        if (productId == null) {
-            throw new IllegalArgumentException("Product id cannot be null");
-        }
+        validateProductId(productId);
         if (imageId == null) {
             throw new IllegalArgumentException("Image id cannot be null");
         }
@@ -139,15 +127,25 @@ public class ProductService {
     }
 
     public ProductVariant changeVariantPrice(Long variantId, BigDecimal newPrice) {
-        if (variantId == null) {
-            throw new IllegalArgumentException("Variant id cannot be null");
-        }
+        validateVariantId(variantId);
 
         ProductVariant variant = variantRepository.findById(variantId)
                 .orElseThrow(() -> new VariantNotFoundException(variantId));
 
         variant.changePrice(newPrice);
         return variantRepository.save(variant);
+    }
+
+    private void validateProductId(Long productId) {
+        if (productId == null) {
+            throw new IllegalArgumentException("Product id cannot be null");
+        }
+    }
+
+    private void validateVariantId(Long variantId) {
+        if (variantId == null) {
+            throw new IllegalArgumentException("Variant id cannot be null");
+        }
     }
 
 }

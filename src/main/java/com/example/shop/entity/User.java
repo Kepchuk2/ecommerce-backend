@@ -37,14 +37,10 @@ public class User {
 
     public  User(String email, String password, Role role) {
         if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email must not be blank");
+            throw new IllegalArgumentException("Email must not be null or blank");
         }
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Password must not be blank");
-        }
-        if (role == null) {
-            throw new IllegalArgumentException("Role must not be null");
-        }
+        validatePassword(password);
+        validateRole(role);
 
         this.email = email;
         this.password = password;
@@ -52,16 +48,12 @@ public class User {
     }
 
     public void changePassword(String password) {
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Password must not be blank");
-        }
+        validatePassword(password);
         this.password = password;
     }
 
     public void changeRole(Role role) {
-        if (role == null) {
-            throw new IllegalArgumentException("Role must not be null");
-        }
+        validateRole(role);
         this.role = role;
     }
 
@@ -77,5 +69,17 @@ public class User {
 
         orders.add(order);
         order.assignUser(this);
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new IllegalArgumentException("Password must not be null or blank");
+        }
+    }
+
+    private void validateRole(Role role) {
+        if (role == null) {
+            throw new IllegalArgumentException("Role must not be null");
+        }
     }
 }

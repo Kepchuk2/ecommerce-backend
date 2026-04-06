@@ -59,9 +59,7 @@ public class Order {
     }
 
     public Order(OrderStatus status, BigDecimal totalPrice, Currency currency, String deliveryAddress, String deliveryMethod) {
-        if (status == null) {
-            throw new IllegalArgumentException("Order status must not be null");
-        }
+        validateOrderStatus(status);
         if (totalPrice == null || totalPrice.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Total price must be greater than or equal to zero");
         }
@@ -77,9 +75,7 @@ public class Order {
     }
 
     public void changeStatus(OrderStatus newStatus) {
-        if (newStatus == null) {
-            throw new IllegalArgumentException("Order status must not be null");
-        }
+        validateOrderStatus(newStatus);
 
         this.status = newStatus;
     }
@@ -92,9 +88,7 @@ public class Order {
     }
 
     public void addItem(OrderItem item) {
-        if (item == null) {
-            throw new IllegalArgumentException("Order item must not be null");
-        }
+        validateOrderItem(item);
         if (item.getOrder() != null && item.getOrder() != this) {
             throw new IllegalArgumentException("Order item already belongs to another order");
         }
@@ -107,9 +101,7 @@ public class Order {
     }
 
     public void removeItem(OrderItem item) {
-        if (item == null) {
-            throw new IllegalArgumentException("Order item must not be null");
-        }
+        validateOrderItem(item);
 
         items.remove(item);
         item.setOrder(null);
@@ -127,5 +119,17 @@ public class Order {
 
     public void assignUser(User user) {
         this.user = user;
+    }
+
+    private void validateOrderItem(OrderItem item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Order item must not be null");
+        }
+    }
+
+    private void validateOrderStatus(OrderStatus status) {
+        if (status == null) {
+            throw new IllegalArgumentException("Order status must not be null");
+        }
     }
 }
