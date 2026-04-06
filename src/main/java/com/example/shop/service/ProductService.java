@@ -8,7 +8,6 @@ import com.example.shop.exception.ImageNotFoundException;
 import com.example.shop.exception.ProductNotFoundException;
 import com.example.shop.exception.VariantAlreadyExistsException;
 import com.example.shop.exception.VariantNotFoundException;
-import com.example.shop.repository.ProductImageRepository;
 import com.example.shop.repository.ProductRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;

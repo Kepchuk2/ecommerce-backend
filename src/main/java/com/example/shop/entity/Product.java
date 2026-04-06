@@ -3,9 +3,7 @@ package com.example.shop.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,10 +36,10 @@ public class Product {
 
     public Product(String name, String description, ProductCategory category) {
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Product name must not be blank");
+            throw new IllegalArgumentException("Product name must not be null or blank");
         }
         if (description == null || description.isBlank()) {
-            throw new IllegalArgumentException("Product description must not be blank");
+            throw new IllegalArgumentException("Product description must not be null or blank");
         }
         if (category == null) {
             throw new IllegalArgumentException("Product category must not be null");
