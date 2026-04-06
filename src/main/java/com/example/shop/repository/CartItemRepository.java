@@ -2,7 +2,6 @@ package com.example.shop.repository;
 
 import com.example.shop.entity.Cart;
 import com.example.shop.entity.CartItem;
-import com.example.shop.entity.OrderStatus;
 import com.example.shop.entity.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
 

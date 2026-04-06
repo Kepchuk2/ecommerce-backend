@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -44,7 +43,7 @@ public class ProductService {
         }
 
         return variantRepository.findBySku(sku)
-                .orElseThrow(() -> new ProductVariantNotFoundException(sku));
+                .orElseThrow(() -> new VariantNotFoundException(sku));
     }
 
     public List<Product> searchProductByName(String productName) {

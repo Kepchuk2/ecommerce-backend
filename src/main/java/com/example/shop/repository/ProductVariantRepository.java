@@ -3,7 +3,6 @@ package com.example.shop.repository;
 import com.example.shop.entity.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 

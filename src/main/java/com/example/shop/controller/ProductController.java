@@ -50,7 +50,7 @@ public class ProductController {
     }
 
     @PostMapping("/{productId}/variants")
-    public ProductVariantResponse addVariantToProduct(@Valid @PathVariable Long productId, @RequestBody AddProductVariantRequest request) {
+    public ProductVariantResponse addVariantToProduct(@PathVariable Long productId, @Valid @RequestBody AddProductVariantRequest request) {
         ProductVariant variant = productService.addVariantToProduct(productId, request.getSku(), request.getPrice(), request.getSize(), request.getColor());
         return ProductMapper.toProductVariantResponse(variant);
     }
@@ -62,7 +62,7 @@ public class ProductController {
     }
 
     @PostMapping("/{productId}/images")
-    public ProductResponse addImageToProduct(@Valid @PathVariable Long productId, @RequestBody AddProductImageRequest request) {
+    public ProductResponse addImageToProduct(@PathVariable Long productId, @Valid @RequestBody AddProductImageRequest request) {
         Product product =productService.addImageToProduct(productId, request.getImageUrl(), request.getAltText(), request.getPosition());
         return ProductMapper.toProductResponse(product);
     }
@@ -74,7 +74,7 @@ public class ProductController {
     }
 
     @PutMapping("/variants/{variantId}/price")
-    public ProductVariantResponse changeVariantPrice(@Valid @PathVariable Long variantId, @RequestBody ChangeVariantPriceRequest request) {
+    public ProductVariantResponse changeVariantPrice(@PathVariable Long variantId, @Valid @RequestBody ChangeVariantPriceRequest request) {
         ProductVariant variant = productService.changeVariantPrice(variantId, request.getNewPrice());
         return ProductMapper.toProductVariantResponse(variant);
     }
