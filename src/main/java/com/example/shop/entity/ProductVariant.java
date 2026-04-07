@@ -16,8 +16,7 @@ import java.math.BigDecimal;
 public class ProductVariant {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_variants_seq")
-    @SequenceGenerator(name = "product_variants_seq", sequenceName = "product_variants_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)

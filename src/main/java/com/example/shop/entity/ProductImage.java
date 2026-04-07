@@ -14,8 +14,7 @@ import lombok.NoArgsConstructor;
 public class ProductImage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_images_seq")
-    @SequenceGenerator(name = "product_images_seq", sequenceName = "product_images_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 1000)

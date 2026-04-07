@@ -1,10 +1,12 @@
 package com.example.shop.service;
 
+import com.example.shop.dto.product.ProductResponse;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductCategory;
 import com.example.shop.entity.ProductImage;
 import com.example.shop.entity.ProductVariant;
 import com.example.shop.exception.*;
+import com.example.shop.mapper.ProductMapper;
 import com.example.shop.repository.ProductRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +24,13 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
 
-    public Product getByProductId(Long productId) {
+    public ProductResponse getByProductId(Long productId) {
         validateProductId(productId);
 
-        return productRepository.findById(productId)
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        return ProductMapper.toProductResponse(product);
     }
 
     public List<Product> getProductsByCategory(ProductCategory category) {
@@ -54,11 +58,13 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCase(productName);
     }
 
+    @Transactional
     public Product createProduct(String name, String description, ProductCategory category) {
         Product product = new Product(name, description, category);
         return productRepository.save(product);
     }
 
+    @Transactional
     public ProductVariant addVariantToProduct(Long productId, String sku, BigDecimal price, String size, String color) {
         validateProductId(productId);
 
@@ -76,6 +82,7 @@ public class ProductService {
         return  productVariant;
     }
 
+    @Transactional
     public ProductVariant removeVariantFromProduct(Long productId, Long variantId) {
         validateProductId(productId);
         validateVariantId(variantId);
@@ -94,6 +101,7 @@ public class ProductService {
         return variant;
     }
 
+    @Transactional
     public Product addImageToProduct(Long productId, String imageUrl, String altText, int position) {
         validateProductId(productId);
 
@@ -106,6 +114,7 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    @Transactional
     public Product removeImageFromProduct(Long productId, Long imageId) {
         validateProductId(productId);
         if (imageId == null) {
@@ -125,6 +134,7 @@ public class ProductService {
         return  productRepository.save(product);
     }
 
+    @Transactional
     public ProductVariant changeVariantPrice(Long variantId, BigDecimal newPrice) {
         validateVariantId(variantId);
 

@@ -5,6 +5,6 @@ public class VariantNotFoundException extends RuntimeException {
         super("Product variant with id " + variantId + " not found");
     }
     public VariantNotFoundException(String sku) {
-        super("Product variant with id " + sku + " not found");
+        super("Product variant with sku " + sku + " not found");
     }
 }

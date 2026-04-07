@@ -24,8 +24,7 @@ import java.util.List;
 public class CartItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cart_items_seq")
-    @SequenceGenerator(name = "cart_items_seq", sequenceName = "cart_items_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
