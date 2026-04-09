@@ -33,7 +33,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Order> orders = new ArrayList<>();
 
-    public  User(String email, String password, Role role) {
+    public User(String email, String password, Role role) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email must not be null or blank");
         }
