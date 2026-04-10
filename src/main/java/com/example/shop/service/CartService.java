@@ -4,6 +4,7 @@ import com.example.shop.entity.*;
 import com.example.shop.exception.CartNotFoundException;
 import com.example.shop.exception.ProductNotFoundException;
 import com.example.shop.exception.UserNotFoundException;
+import com.example.shop.exception.VariantNotFoundException;
 import com.example.shop.repository.CartRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import com.example.shop.repository.UserRepository;
@@ -29,13 +30,6 @@ public class CartService {
                 .orElseThrow(() -> new CartNotFoundException(sessionId));
     }
 
-    public Optional<Cart> findBySessionId(String sessionId) {
-        if (sessionId == null || sessionId.isBlank()) {
-            return Optional.empty();
-        }
-        return cartRepository.findBySessionId(sessionId);
-    }
-
     public Cart getCartByUserId(Long userId) {
         validateUserId(userId);
 
@@ -43,46 +37,32 @@ public class CartService {
                 .orElseThrow(() -> new CartNotFoundException(userId));
     }
 
-    public Optional<Cart> findByUserId(Long userId) {
-        if (userId == null) {
-            return Optional.empty();
-        }
-        return cartRepository.findByUserId(userId);
-    }
-
     @Transactional
     public Cart findOrCreateCartBySessionId(String sessionId) {
         validateSessionId(sessionId);
 
-        Optional<Cart> existingCart = cartRepository.findBySessionId(sessionId);
-
-        if (existingCart.isPresent()) {
-            return existingCart.get();
-        }
-
-        Cart cart = new Cart();
-        cart.setSessionId(sessionId);
-
-        return cartRepository.save(cart);
+        return cartRepository.findBySessionId(sessionId)
+                .orElseGet(() -> {
+                    Cart cart = new Cart();
+                    cart.setSessionId(sessionId);
+                    return cartRepository.save(cart);
+                });
     }
 
     @Transactional
     public Cart findOrCreateCartByUserId(Long userId) {
         validateUserId(userId);
 
-        Optional<Cart> existingCart = cartRepository.findByUserId(userId);
+        return cartRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new UserNotFoundException(userId));
 
-        if (existingCart.isPresent()) {
-            return existingCart.get();
-        }
+                    Cart cart = new Cart();
+                    cart.assignUser(user);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        Cart cart = new Cart();
-        cart.assignUser(user);
-
-        return cartRepository.save(cart);
+                    return cartRepository.save(cart);
+                });
     }
 
     private void addProductToCart(Cart cart, ProductVariant variant, int quantity) {
@@ -109,15 +89,10 @@ public class CartService {
         validateVariantId(variantId);
         validateQuantity(quantity);
 
-        Cart cart = cartRepository.findBySessionId(sessionId)
-                .orElseGet(() -> {
-                    Cart newCart = new Cart();
-                    newCart.setSessionId(sessionId);
-                    return newCart;
-                });
+        Cart cart = findOrCreateCartBySessionId(sessionId);
 
         ProductVariant variant = productVariantRepository.findById(variantId)
-                .orElseThrow(() -> new ProductNotFoundException(variantId));
+                .orElseThrow(() -> new VariantNotFoundException(variantId));
 
         addProductToCart(cart, variant, quantity);
 
@@ -130,19 +105,7 @@ public class CartService {
         validateVariantId(variantId);
         validateQuantity(quantity);
 
-        Optional<Cart> existingCart = cartRepository.findByUserId(userId);
-
-        Cart cart;
-
-        if (existingCart.isPresent()) {
-            cart = existingCart.get();
-        } else {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new UserNotFoundException(userId));
-
-            cart = new Cart();
-            cart.assignUser(user);
-        }
+        Cart cart = findOrCreateCartByUserId(userId);
 
         ProductVariant variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new ProductNotFoundException(variantId));

@@ -40,6 +40,7 @@ public class UserService {
         return userRepository.findByRole(role);
     }
 
+    @Transactional
     public User createUser(String email, String password, Role role) {
         validateEmail(email);
         if (password == null || password.isBlank()) {
@@ -57,6 +58,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public void deleteUserById(Long userId) {
         validateUserId(userId);
 
@@ -69,6 +71,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    @Transactional
     public User changePassword(Long userId, String newPassword) {
         validateUserId(userId);
         if (newPassword == null || newPassword.isBlank()) {
@@ -80,6 +83,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public User changeRole(Long userId, Role role) {
         validateUserId(userId);
         validateRole(role);

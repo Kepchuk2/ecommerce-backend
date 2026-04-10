@@ -6,20 +6,57 @@ import com.example.shop.dto.cart.UpdateCartItemQuantityRequest;
 import com.example.shop.entity.Cart;
 import com.example.shop.mapper.CartMapper;
 import com.example.shop.service.CartService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/carts")
 @RequiredArgsConstructor
 public class CartController {
 
+    private static final String SESSION_COOKIE_NAME = "sessionId";
+
     private final CartService cartService;
+
+    @GetMapping("/guest")
+    public CartResponse getOrCreateGuestCart(
+        @CookieValue(value = SESSION_COOKIE_NAME, required = false) String sessionId,
+        HttpServletResponse response
+        ) {
+        if (sessionId == null || sessionId.isBlank()) {
+            sessionId = UUID.randomUUID().toString();
+
+            Cookie cookie = new Cookie(SESSION_COOKIE_NAME, sessionId);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60 * 24 * 30); //
+            response.addCookie(cookie);
+        }
+
+        Cart cart = cartService.findOrCreateCartBySessionId(sessionId);
+        return CartMapper.toCartResponse(cart);
+    }
+
 
     @GetMapping("/guest/{sessionId}")
     public CartResponse getGuestCartBySessionId(@PathVariable String sessionId) {
 
         Cart cart = cartService.getCartBySessionId(sessionId);
+        return CartMapper.toCartResponse(cart);
+    }
+    @PostMapping("/guest/{sessionId}")
+    public CartResponse createGuestCart(@PathVariable String sessionId) {
+        Cart cart = cartService.findOrCreateCartBySessionId(sessionId);
+        return CartMapper.toCartResponse(cart);
+    }
+
+    @PostMapping("/user/{userId}")
+    public CartResponse createUserCart(@PathVariable Long userId) {
+        Cart cart = cartService.findOrCreateCartByUserId(userId);
         return CartMapper.toCartResponse(cart);
     }
 
