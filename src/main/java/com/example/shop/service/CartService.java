@@ -26,14 +26,14 @@ public class CartService {
     public Cart getCartBySessionId(String sessionId) {
         validateSessionId(sessionId);
 
-        return cartRepository.findBySessionId(sessionId)
+        return cartRepository.findBySessionIdWithItems(sessionId)
                 .orElseThrow(() -> new CartNotFoundException(sessionId));
     }
 
     public Cart getCartByUserId(Long userId) {
         validateUserId(userId);
 
-        return cartRepository.findByUserId(userId)
+        return cartRepository.findByUserIdWithItems(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
     }
 
@@ -41,7 +41,7 @@ public class CartService {
     public Cart findOrCreateCartBySessionId(String sessionId) {
         validateSessionId(sessionId);
 
-        return cartRepository.findBySessionId(sessionId)
+        return cartRepository.findBySessionIdWithItems(sessionId)
                 .orElseGet(() -> {
                     Cart cart = new Cart();
                     cart.setSessionId(sessionId);
@@ -53,7 +53,7 @@ public class CartService {
     public Cart findOrCreateCartByUserId(Long userId) {
         validateUserId(userId);
 
-        return cartRepository.findByUserId(userId)
+        return cartRepository.findByUserIdWithItems(userId)
                 .orElseGet(() -> {
                     User user = userRepository.findById(userId)
                             .orElseThrow(() -> new UserNotFoundException(userId));
@@ -108,7 +108,7 @@ public class CartService {
         Cart cart = findOrCreateCartByUserId(userId);
 
         ProductVariant variant = productVariantRepository.findById(variantId)
-                .orElseThrow(() -> new ProductNotFoundException(variantId));
+                .orElseThrow(() -> new VariantNotFoundException(variantId));
 
         addProductToCart(cart, variant, quantity);
 
@@ -138,7 +138,7 @@ public class CartService {
         validateSessionId(sessionId);
         validateVariantId(variantId);
 
-        Cart cart = cartRepository.findBySessionId(sessionId)
+        Cart cart = cartRepository.findBySessionIdWithItems(sessionId)
                 .orElseThrow(() -> new CartNotFoundException(sessionId));
 
         updateCartItemQuantity(cart, variantId, newQuantity);
@@ -151,7 +151,7 @@ public class CartService {
         validateUserId(userId);
         validateVariantId(variantId);
 
-        Cart cart = cartRepository.findByUserId(userId)
+        Cart cart = cartRepository.findByUserIdWithItems(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
 
         updateCartItemQuantity(cart, variantId, newQuantity);
@@ -172,7 +172,7 @@ public class CartService {
         validateSessionId(sessionId);
         validateVariantId(variantId);
 
-        Cart cart = cartRepository.findBySessionId(sessionId)
+        Cart cart = cartRepository.findBySessionIdWithItems(sessionId)
                 .orElseThrow(() -> new CartNotFoundException(sessionId));
 
         removeItemFromCart(cart, variantId);
@@ -185,7 +185,7 @@ public class CartService {
         validateUserId(userId);
         validateVariantId(variantId);
 
-        Cart cart = cartRepository.findByUserId(userId)
+        Cart cart = cartRepository.findByUserIdWithItems(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
 
         removeItemFromCart(cart, variantId);
@@ -202,7 +202,7 @@ public class CartService {
     public Cart clearCartBySessionId(String sessionId) {
         validateSessionId(sessionId);
 
-        Cart cart = cartRepository.findBySessionId(sessionId)
+        Cart cart = cartRepository.findBySessionIdWithItems(sessionId)
                 .orElseThrow(() -> new CartNotFoundException(sessionId));
 
         clearCart(cart);
@@ -214,7 +214,7 @@ public class CartService {
     public Cart clearCartByUserId(Long userId) {
         validateUserId(userId);
 
-        Cart cart = cartRepository.findByUserId(userId)
+        Cart cart = cartRepository.findByUserIdWithItems(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
 
         clearCart(cart);
