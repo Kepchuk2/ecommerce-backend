@@ -8,6 +8,7 @@ import com.example.shop.entity.Role;
 import com.example.shop.entity.User;
 import com.example.shop.mapper.UserMapper;
 import com.example.shop.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +37,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserResponse createUser(@RequestBody CreateUserRequest request) {
+    public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
         User user = userService.createUser(request.getEmail(), request.getPassword(), request.getRole());
         return UserMapper.toUserResponse(user);
     }
@@ -47,12 +48,12 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/password")
-    public UserResponse changePassword(@PathVariable Long userId, @RequestBody ChangePasswordRequest request) {
+    public UserResponse changePassword(@PathVariable Long userId, @Valid @RequestBody ChangePasswordRequest request) {
         return UserMapper.toUserResponse(userService.changePassword(userId, request.getNewPassword()));
     }
 
     @PatchMapping("/{userId}/role")
-    public UserResponse changeRole(@PathVariable Long userId, @RequestBody ChangeRoleRequest request) {
+    public UserResponse changeRole(@PathVariable Long userId, @Valid @RequestBody ChangeRoleRequest request) {
         return UserMapper.toUserResponse(userService.changeRole(userId, request.getNewRole()));
     }
 }

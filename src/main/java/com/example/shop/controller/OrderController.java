@@ -3,11 +3,10 @@ package com.example.shop.controller;
 import com.example.shop.dto.order.OrderResponse;
 import com.example.shop.dto.order.UpdateOrderStatusRequest;
 import com.example.shop.entity.Order;
-import com.example.shop.entity.OrderStatus;
 import com.example.shop.mapper.OrderMapper;
 import com.example.shop.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class OrderController {
     }
 
     @PatchMapping("/{orderId}/status")
-    public OrderResponse updateOrderStatus(@PathVariable Long orderId, @RequestBody UpdateOrderStatusRequest request) {
+    public OrderResponse updateOrderStatus(@PathVariable Long orderId, @Valid @RequestBody UpdateOrderStatusRequest request) {
         Order order = orderService.updateOrderStatus(orderId, request.getStatus());
         return OrderMapper.toOrderResponse(order);
     }

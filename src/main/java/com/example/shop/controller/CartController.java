@@ -8,6 +8,7 @@ import com.example.shop.mapper.CartMapper;
 import com.example.shop.service.CartService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class CartController {
             Cookie cookie = new Cookie(SESSION_COOKIE_NAME, sessionId);
             cookie.setHttpOnly(true);
             cookie.setPath("/");
-            cookie.setMaxAge(60 * 60 * 24 * 30); //
+            cookie.setMaxAge(60 * 60 * 24 * 30);
             response.addCookie(cookie);
         }
 
@@ -61,14 +62,14 @@ public class CartController {
     }
 
     @PostMapping("/guest/{sessionId}/items")
-    public CartResponse addItemToGuestCart(@PathVariable String sessionId, @RequestBody AddCartItemRequest request) {
+    public CartResponse addItemToGuestCart(@PathVariable String sessionId, @Valid @RequestBody AddCartItemRequest request) {
 
         Cart cart = cartService.addProductToCartBySessionId(sessionId, request.getVariantId(), request.getQuantity());
         return CartMapper.toCartResponse(cart);
     }
 
     @PutMapping("/guest/{sessionId}/items/{variantId}")
-    public CartResponse updateGuestCartItemQuantity(@PathVariable String sessionId,@PathVariable Long variantId ,@RequestBody UpdateCartItemQuantityRequest request) {
+    public CartResponse updateGuestCartItemQuantity(@PathVariable String sessionId, @Valid @PathVariable Long variantId ,@RequestBody UpdateCartItemQuantityRequest request) {
 
         Cart cart = cartService.updateCartItemQuantityBySessionId(sessionId, variantId ,request.getQuantity());
         return CartMapper.toCartResponse(cart);
@@ -96,14 +97,14 @@ public class CartController {
     }
 
     @PostMapping("/user/{userId}/items")
-    public CartResponse addItemToUserCart(@PathVariable Long userId, @RequestBody AddCartItemRequest request) {
+    public CartResponse addItemToUserCart(@PathVariable Long userId, @Valid @RequestBody AddCartItemRequest request) {
 
         Cart cart = cartService.addProductToCartByUserId(userId, request.getVariantId(), request.getQuantity());
         return CartMapper.toCartResponse(cart);
     }
 
     @PutMapping("/user/{userId}/items/{variantId}")
-    public CartResponse updateUserCartItemQuantity(@PathVariable Long userId, @PathVariable Long variantId, @RequestBody UpdateCartItemQuantityRequest request) {
+    public CartResponse updateUserCartItemQuantity(@PathVariable Long userId, @Valid @PathVariable Long variantId, @RequestBody UpdateCartItemQuantityRequest request) {
 
         Cart cart = cartService.updateCartItemQuantityByUserId(userId, variantId, request.getQuantity());
         return CartMapper.toCartResponse(cart);
