@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -25,17 +26,28 @@ public class GlobalExceptionHandler {
             VariantNotFoundException.class
     })
     public ResponseEntity<ApiError> handleNotFound(RuntimeException ex, HttpServletRequest request) {
-        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(),request);
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
-    @ExceptionHandler(VariantAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleConflict(VariantAlreadyExistsException ex, HttpServletRequest request) {
+    @ExceptionHandler({
+            VariantAlreadyExistsException.class,
+            UserAlreadyExistsException.class
+    })
+    public ResponseEntity<ApiError> handleConflict(RuntimeException ex, HttpServletRequest request) {
         return buildError(HttpStatus.CONFLICT, ex.getMessage(), request);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiError> handleBadRequest(IllegalArgumentException ex, HttpServletRequest request) {
-        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    @ExceptionHandler({
+            IllegalArgumentException.class,
+            IllegalStateException.class,
+            MissingServletRequestParameterException.class
+    })
+    public ResponseEntity<ApiError> handleBadRequest(Exception ex, HttpServletRequest request) {
+        String message = ex instanceof MissingServletRequestParameterException missing
+                ? "Missing required parameter: " + missing.getParameterName()
+                : ex.getMessage();
+
+        return buildError(HttpStatus.BAD_REQUEST, message, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -43,37 +55,32 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
-        String message = ex.getBindingResult()
+        List<FieldValidationError> fieldErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(this::formatFieldError)
-                .collect(Collectors.joining("; "));
+                .map(this::toFieldValidationError)
+                .toList();
 
-        return buildError(HttpStatus.BAD_REQUEST, message, request);
+        ApiError error = ApiError.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message("Validation failed")
+                .path(request.getRequestURI())
+                .fieldErrors(fieldErrors)
+                .build();
+
+        return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleUnexpected(Exception ex, HttpServletRequest request) {
         ex.printStackTrace();
-
-        return buildError(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Unexpected server error",
-                request
-        );
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error", request);
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ApiError> handleMissingParam(
-            MissingServletRequestParameterException ex,
-            HttpServletRequest request
-    ) {
-        String message = "Missing required parameter: " + ex.getParameterName();
-        return buildError(HttpStatus.BAD_REQUEST, message, request);
-    }
-
-    private String formatFieldError(FieldError error) {
-        return error.getField() + ": " + error.getDefaultMessage();
+    private FieldValidationError toFieldValidationError(FieldError error) {
+        return new FieldValidationError(error.getField(), error.getDefaultMessage());
     }
 
     private ResponseEntity<ApiError> buildError(

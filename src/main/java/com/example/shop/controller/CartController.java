@@ -69,7 +69,7 @@ public class CartController {
     }
 
     @PutMapping("/guest/{sessionId}/items/{variantId}")
-    public CartResponse updateGuestCartItemQuantity(@PathVariable String sessionId, @Valid @PathVariable Long variantId ,@RequestBody UpdateCartItemQuantityRequest request) {
+    public CartResponse updateGuestCartItemQuantity(@PathVariable String sessionId, @PathVariable Long variantId , @Valid @RequestBody UpdateCartItemQuantityRequest request) {
 
         Cart cart = cartService.updateCartItemQuantityBySessionId(sessionId, variantId ,request.getQuantity());
         return CartMapper.toCartResponse(cart);
@@ -104,7 +104,7 @@ public class CartController {
     }
 
     @PutMapping("/user/{userId}/items/{variantId}")
-    public CartResponse updateUserCartItemQuantity(@PathVariable Long userId, @Valid @PathVariable Long variantId, @RequestBody UpdateCartItemQuantityRequest request) {
+    public CartResponse updateUserCartItemQuantity(@PathVariable Long userId, @PathVariable Long variantId, @Valid @RequestBody UpdateCartItemQuantityRequest request) {
 
         Cart cart = cartService.updateCartItemQuantityByUserId(userId, variantId, request.getQuantity());
         return CartMapper.toCartResponse(cart);
