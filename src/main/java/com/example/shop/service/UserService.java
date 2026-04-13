@@ -9,6 +9,7 @@ import com.example.shop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
 
@@ -56,7 +58,9 @@ public class UserService {
             throw new UserAlreadyExistsException(normalizedEmail);
         }
 
-        User user = new User(normalizedEmail, password, role);
+        String encodedPassword = passwordEncoder.encode(password);
+
+        User user = new User(normalizedEmail, encodedPassword, role);
         return userRepository.save(user);
     }
 
@@ -76,12 +80,16 @@ public class UserService {
     @Transactional
     public User changePassword(Long userId, String newPassword) {
         validateUserId(userId);
+
         if (newPassword == null || newPassword.isBlank()) {
             throw new IllegalArgumentException("newPassword cannot be null or blank");
         }
+
         User user = getUserById(userId);
 
-        user.changePassword(newPassword);
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.changePassword(encodedPassword);
+
         return userRepository.save(user);
     }
 
