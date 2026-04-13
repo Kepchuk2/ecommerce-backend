@@ -4,6 +4,7 @@ import com.example.shop.entity.Role;
 import com.example.shop.entity.User;
 import com.example.shop.exception.UserAlreadyExistsException;
 import com.example.shop.exception.UserNotFoundException;
+import com.example.shop.repository.OrderRepository;
 import com.example.shop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
     public User getUserById(Long userId) {
         validateUserId(userId);
@@ -64,7 +66,7 @@ public class UserService {
 
         User user = getUserById(userId);
 
-        if(!user.getOrders().isEmpty()) {
+        if(orderRepository.existsByUserId(userId)) {
             throw new IllegalStateException("Cannot delete user with existing orders");
         }
 

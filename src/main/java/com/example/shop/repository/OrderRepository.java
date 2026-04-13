@@ -18,6 +18,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserIdAndStatus(Long userId, OrderStatus status);
 
+    boolean existsByUserId(Long userId);
+
     @Query("""
        select distinct o from Order o
        left join fetch o.items
