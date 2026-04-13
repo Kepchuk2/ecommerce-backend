@@ -24,13 +24,11 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
 
-    public ProductResponse getByProductId(Long productId) {
+    public Product getByProductId(Long productId) {
         validateProductId(productId);
 
-        Product product = productRepository.findById(productId)
+        return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
-
-        return ProductMapper.toProductResponse(product);
     }
 
     public List<Product> getProductsByCategory(ProductCategory category) {
