@@ -55,9 +55,8 @@ public class User {
         this.role = role;
     }
 
-    public void assignCart(Cart cart) {
+    public void setCartIternal(Cart cart) {
         this.cart = cart;
-        cart.assignUser(this);
     }
 
     public void addOrder(Order order) {

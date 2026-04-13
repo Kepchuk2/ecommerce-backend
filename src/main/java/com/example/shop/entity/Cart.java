@@ -48,6 +48,7 @@ public class Cart {
 
     public void addItem(CartItem item) {
         validateCartItem(item);
+
         if (items.contains(item)) {
             return;
         }
@@ -105,7 +106,7 @@ public class Cart {
         }
 
         this.user = user;
-        user.assignCart(this);
+        user.setCartIternal(this);
     }
 
     private void validateCartItem(CartItem item) {
