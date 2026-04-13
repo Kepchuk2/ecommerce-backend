@@ -25,19 +25,18 @@ public class OrderService {
     public Order getOrderById(Long orderId) {
         validateOrderId(orderId);
 
-        return orderRepository.findById(orderId)
+        return orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
     public List<Order> getOrdersByUserId(Long userId) {
         validateUserId(userId);
 
-        return orderRepository.findByUserId(userId);
+        return orderRepository.findByUserIdWithDetails(userId);
     }
 
     @Transactional
     public Order createOrderFromUserCart(Long userId) {
-
         validateUserId(userId);
 
         User user = userRepository.findById(userId)
@@ -47,12 +46,10 @@ public class OrderService {
                 .orElseThrow(() -> new CartNotFoundException(userId));
 
         return createOrderFromCart(cart, user);
-
     }
 
     @Transactional
     public Order createOrderFromSessionCart(String sessionId) {
-
         validateSessionId(sessionId);
 
         Cart cart = cartRepository.findBySessionId(sessionId)
@@ -74,7 +71,10 @@ public class OrderService {
 
         order.changeStatus(orderStatus);
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        return orderRepository.findByIdWithDetails(savedOrder.getId())
+                .orElseThrow(() -> new OrderNotFoundException(savedOrder.getId()));
     }
 
     @Transactional
@@ -86,13 +86,17 @@ public class OrderService {
 
         order.changeStatus(OrderStatus.CANCELLED);
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        return orderRepository.findByIdWithDetails(savedOrder.getId())
+                .orElseThrow(() -> new OrderNotFoundException(savedOrder.getId()));
     }
 
     private Order createOrderFromCart(Cart cart, User user) {
         validateCartNotEmpty(cart);
 
         Order order = new Order();
+
         if (user != null) {
             order.assignUser(user);
         }
@@ -103,7 +107,8 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
         cart.clearItems();
 
-        return savedOrder;
+        return orderRepository.findByIdWithDetails(savedOrder.getId())
+                .orElseThrow(() -> new OrderNotFoundException(savedOrder.getId()));
     }
 
     private void validateOrderId(Long orderId) {
@@ -136,6 +141,4 @@ public class OrderService {
             order.addItem(orderItem);
         }
     }
-
-
 }
