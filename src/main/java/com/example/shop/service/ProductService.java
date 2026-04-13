@@ -24,11 +24,19 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
 
+    public List<Product> getAllProducts() {
+        return productRepository.findAllWithImages();
+    }
+
     public Product getByProductId(Long productId) {
         validateProductId(productId);
 
-        return productRepository.findById(productId)
+        Product product = productRepository.findByIdWithImages(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        productRepository.findByIdWithVariants(productId);
+
+        return product;
     }
 
     public List<Product> getProductsByCategory(ProductCategory category) {
@@ -36,7 +44,7 @@ public class ProductService {
             throw new IllegalArgumentException("Category cannot be null");
         }
 
-        return productRepository.findByCategory(category);
+        return productRepository.findByCategoryWithImages(category);
     }
 
     public ProductVariant getVariantBySku(String sku) {
@@ -58,6 +66,8 @@ public class ProductService {
 
     @Transactional
     public Product createProduct(String name, String description, ProductCategory category) {
+        validateProductData(name, description, category);
+
         Product product = new Product(name, description, category);
         return productRepository.save(product);
     }
@@ -74,8 +84,8 @@ public class ProductService {
         }
 
         ProductVariant productVariant = new ProductVariant(sku, price, size, color);
-
         product.addVariant(productVariant);
+
         productRepository.save(product);
         return  productVariant;
     }
@@ -84,6 +94,7 @@ public class ProductService {
     public ProductVariant removeVariantFromProduct(Long productId, Long variantId) {
         validateProductId(productId);
         validateVariantId(variantId);
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
@@ -107,8 +118,8 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
         ProductImage image = new ProductImage(imageUrl, altText, position);
-
         product.addImage(image);
+
         return productRepository.save(product);
     }
 
@@ -128,7 +139,6 @@ public class ProductService {
                 .orElseThrow(() -> new ImageNotFoundException(imageId));
 
         product.removeImage(image);
-
         return  productRepository.save(product);
     }
 
@@ -155,4 +165,17 @@ public class ProductService {
         }
     }
 
+    private void validateProductData(String name, String description, ProductCategory category) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Product name cannot be null or blank");
+        }
+
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Product description cannot be null or blank");
+        }
+
+        if (category == null) {
+            throw new IllegalArgumentException("Product category cannot be null");
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.shop.mapper;
 
 import com.example.shop.dto.product.ProductImageResponse;
+import com.example.shop.dto.product.ProductListResponse;
 import com.example.shop.dto.product.ProductResponse;
 import com.example.shop.dto.product.ProductVariantResponse;
 import com.example.shop.entity.Product;
@@ -102,6 +103,37 @@ public final class ProductMapper {
         for (Product product : products) {
             if (product != null) {
                 responses.add(toProductResponse(product));
+            }
+        }
+
+        return responses;
+    }
+
+    public static ProductListResponse toProductListResponse(Product product) {
+        if (product == null) {
+            return null;
+        }
+
+        ProductListResponse response = new ProductListResponse();
+        response.setId(product.getId());
+        response.setName(product.getName());
+        response.setDescription(product.getDescription());
+        response.setCategory(product.getCategory().name());
+        response.setImages(toProductImageResponseList(product.getProductImages()));
+
+        return response;
+    }
+
+    public static List<ProductListResponse> toProductListResponseList(List<Product> products) {
+        List<ProductListResponse> responses = new ArrayList<>();
+
+        if (products == null) {
+            return responses;
+        }
+
+        for (Product product : products) {
+            if (product != null) {
+                responses.add(toProductListResponse(product));
             }
         }
 

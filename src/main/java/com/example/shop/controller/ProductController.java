@@ -25,6 +25,19 @@ public class ProductController {
         return ProductMapper.toProductResponse(product);
     }
 
+    @GetMapping
+    public List<ProductListResponse> getProducts(@RequestParam(required = false) ProductCategory category) {
+        List<Product> products;
+
+        if (category == null) {
+            products = productService.getAllProducts();
+        } else {
+            products = productService.getProductsByCategory(category);
+        }
+
+        return ProductMapper.toProductListResponseList(products);
+    }
+
     @GetMapping("/category/{category}")
     public List<ProductResponse> getProductsByCategory(@PathVariable ProductCategory category) {
         List<Product> products = productService.getProductsByCategory(category);
