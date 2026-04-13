@@ -4,15 +4,12 @@ import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-
-    List<Product> findByCategory(ProductCategory category);
-
-    List<Product> findByNameContainingIgnoreCase(String name);
 
     @Query("""
            select distinct p from Product p
@@ -20,13 +17,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
            where p.id = :productId
            """)
     Optional<Product> findByIdWithImages(Long productId);
-
-    @Query("""
-           select distinct p from Product p
-           left join fetch p.variants
-           where p.id = :productId
-           """)
-    Optional<Product> findByIdWithVariants(Long productId);
 
     @Query("""
            select distinct p from Product p
@@ -40,5 +30,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
            left join fetch p.productImages
            """)
     List<Product> findAllWithImages();
+
+    @Query("""
+           select distinct p from Product p
+           left join fetch p.productImages
+           where lower(p.name) like lower(concat('%', :name, '%'))
+           """)
+    List<Product> searchByNameWithImages(@Param("name") String name);
 }
 

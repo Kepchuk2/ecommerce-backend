@@ -1,15 +1,14 @@
 package com.example.shop.service;
 
-import com.example.shop.dto.product.ProductResponse;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductCategory;
 import com.example.shop.entity.ProductImage;
 import com.example.shop.entity.ProductVariant;
 import com.example.shop.exception.*;
-import com.example.shop.mapper.ProductMapper;
 import com.example.shop.repository.ProductRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +24,9 @@ public class ProductService {
     private final ProductVariantRepository variantRepository;
 
     public List<Product> getAllProducts() {
-        return productRepository.findAllWithImages();
+        List<Product> products = productRepository.findAllWithImages();
+        products.forEach(product -> Hibernate.initialize(product.getVariants()));
+        return products;
     }
 
     public Product getByProductId(Long productId) {
@@ -34,8 +35,7 @@ public class ProductService {
         Product product = productRepository.findByIdWithImages(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        productRepository.findByIdWithVariants(productId);
-
+        Hibernate.initialize(product.getVariants());
         return product;
     }
 
@@ -44,7 +44,9 @@ public class ProductService {
             throw new IllegalArgumentException("Category cannot be null");
         }
 
-        return productRepository.findByCategoryWithImages(category);
+        List<Product> products = productRepository.findByCategoryWithImages(category);
+        products.forEach(product -> Hibernate.initialize(product.getVariants()));
+        return products;
     }
 
     public ProductVariant getVariantBySku(String sku) {
@@ -61,7 +63,10 @@ public class ProductService {
             throw new IllegalArgumentException("Product name cannot be null or blank");
         }
 
-        return productRepository.findByNameContainingIgnoreCase(productName);
+        List<Product> products = productRepository.searchByNameWithImages(productName);
+
+        products.forEach(product -> Hibernate.initialize(product.getVariants()));
+        return products;
     }
 
     @Transactional
@@ -69,7 +74,14 @@ public class ProductService {
         validateProductData(name, description, category);
 
         Product product = new Product(name, description, category);
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+
+        Product loadedProduct = productRepository.findByIdWithImages(savedProduct.getId())
+                .orElseThrow(() -> new ProductNotFoundException(savedProduct.getId()));
+
+        Hibernate.initialize(loadedProduct.getVariants());
+
+        return loadedProduct;
     }
 
     @Transactional
@@ -120,17 +132,25 @@ public class ProductService {
         ProductImage image = new ProductImage(imageUrl, altText, position);
         product.addImage(image);
 
-        return productRepository.save(product);
+        productRepository.save(product);
+
+        Product loadedProduct = productRepository.findByIdWithImages(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        Hibernate.initialize(loadedProduct.getVariants());
+
+        return loadedProduct;
     }
 
     @Transactional
     public Product removeImageFromProduct(Long productId, Long imageId) {
         validateProductId(productId);
+
         if (imageId == null) {
             throw new IllegalArgumentException("Image id cannot be null");
         }
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findByIdWithImages(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
         ProductImage image = product.getProductImages().stream()
@@ -139,7 +159,14 @@ public class ProductService {
                 .orElseThrow(() -> new ImageNotFoundException(imageId));
 
         product.removeImage(image);
-        return  productRepository.save(product);
+        productRepository.save(product);
+
+        Product loadedProduct = productRepository.findByIdWithImages(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        Hibernate.initialize(loadedProduct.getVariants());
+
+        return loadedProduct;
     }
 
     @Transactional

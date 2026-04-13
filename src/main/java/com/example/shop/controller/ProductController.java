@@ -38,12 +38,6 @@ public class ProductController {
         return ProductMapper.toProductListResponseList(products);
     }
 
-    @GetMapping("/category/{category}")
-    public List<ProductResponse> getProductsByCategory(@PathVariable ProductCategory category) {
-        List<Product> products = productService.getProductsByCategory(category);
-        return ProductMapper.toProductResponseList(products);
-    }
-
     @GetMapping("/sku/{sku}")
     public ProductVariantResponse getProductVariantBySku(@PathVariable String sku) {
         ProductVariant variant = productService.getVariantBySku(sku);
