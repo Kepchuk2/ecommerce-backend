@@ -8,8 +8,7 @@ import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductImage;
 import com.example.shop.entity.ProductVariant;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public final class ProductMapper {
 
@@ -29,8 +28,8 @@ public final class ProductMapper {
         return  response;
     }
 
-    public static List<ProductVariantResponse> toProductVariantResponseList(List<ProductVariant> variants) {
-        List<ProductVariantResponse> responses = new ArrayList<>();
+    public static Set<ProductVariantResponse> toProductVariantResponseList(Collection<ProductVariant> variants) {
+        Set<ProductVariantResponse> responses = new HashSet<>();
 
         if (variants == null) {
             return responses;

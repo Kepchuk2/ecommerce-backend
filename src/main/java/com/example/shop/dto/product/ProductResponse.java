@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -20,5 +21,5 @@ public class ProductResponse {
     String name;
     ProductCategory category;
     List<ProductImageResponse> images;
-    List<ProductVariantResponse> variants;
+    Set<ProductVariantResponse> variants;
 }
