@@ -165,23 +165,24 @@ All errors are returned in JSON format:
 
 ## 🧪 Tests
 
-Unit tests are implemented for the core service layer to verify business logic and key scenarios.
+Unit tests are implemented for the core service layer to verify business logic and the main application scenarios.
+
+Current test coverage focuses on:
+- basic service operations
+- validation and exception handling
+- selected edge cases in business logic
 
 Covered services:
 - CartService
 - OrderService
 - ProductService
-
-Tested scenarios include:
-- successful operations (create, update, retrieve)
-- error handling (entity not found, validation failures)
-- edge cases (e.g., zero quantity removes item, duplicate SKU validation)
+- UserService
 
 Tests are written using:
 - JUnit 5
 - Mockito
 
-The service layer is tested in isolation with mocked repositories to ensure focus on business logic without involving the database.
+The service layer is tested in isolation with mocked repositories, allowing the tests to focus on application behavior without involving the database.
 
 ---
 
