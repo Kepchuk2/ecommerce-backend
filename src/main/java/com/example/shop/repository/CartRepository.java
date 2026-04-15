@@ -12,8 +12,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     //Найти корзину по session_id
     Optional<Cart> findBySessionId(String sessionId);
 
-    Optional<Cart> findByUser(User user);
-
     Optional<Cart> findByUserId(Long userId);
 
     @Query("""

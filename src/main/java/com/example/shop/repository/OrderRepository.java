@@ -10,14 +10,6 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    List<Order> findByStatus(OrderStatus status);
-
-    List<Order> findAllByOrderByCreatedAtDesc();
-
-    List<Order> findByUserId(Long userId);
-
-    List<Order> findByUserIdAndStatus(Long userId, OrderStatus status);
-
     boolean existsByUserId(Long userId);
 
     @Query("""
