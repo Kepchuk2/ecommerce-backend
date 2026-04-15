@@ -1,10 +1,11 @@
-package com.example.shop.service;
+package com.example.shop;
 
 import com.example.shop.entity.*;
 import com.example.shop.exception.OrderNotFoundException;
 import com.example.shop.repository.CartRepository;
 import com.example.shop.repository.OrderRepository;
 import com.example.shop.repository.UserRepository;
+import com.example.shop.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

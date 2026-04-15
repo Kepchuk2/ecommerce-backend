@@ -1,4 +1,4 @@
-package com.example.shop.service;
+package com.example.shop;
 
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductCategory;
@@ -7,6 +7,7 @@ import com.example.shop.exception.ProductNotFoundException;
 import com.example.shop.exception.VariantAlreadyExistsException;
 import com.example.shop.repository.ProductRepository;
 import com.example.shop.repository.ProductVariantRepository;
+import com.example.shop.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1,4 +1,4 @@
-package com.example.shop.service;
+package com.example.shop;
 
 import com.example.shop.entity.*;
 import com.example.shop.exception.CartNotFoundException;

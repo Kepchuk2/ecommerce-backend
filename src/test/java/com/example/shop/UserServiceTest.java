@@ -1,10 +1,11 @@
-package com.example.shop.service;
+package com.example.shop;
 
 import com.example.shop.entity.Role;
 import com.example.shop.entity.User;
 import com.example.shop.exception.UserAlreadyExistsException;
 import com.example.shop.repository.OrderRepository;
 import com.example.shop.repository.UserRepository;
+import com.example.shop.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
