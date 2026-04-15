@@ -93,13 +93,13 @@ cd ecommerce-backend
 
 Create a database:
 
-shop
+shop_db
 
 ---
 
 ### 3. Configure application.properties
 
-spring.datasource.url=jdbc:postgresql://localhost:5432/shop  
+spring.datasource.url=jdbc:postgresql://localhost:5432/shop_db  
 spring.datasource.username=YOUR_USERNAME  
 spring.datasource.password=YOUR_PASSWORD  
 
@@ -132,7 +132,7 @@ POST /api/products
 
 ### 🛒 Get Cart by sessionId
 
-GET /api/cart/session/{sessionId}
+GET /api/carts/guest/{sessionId}
 
 ---
 
