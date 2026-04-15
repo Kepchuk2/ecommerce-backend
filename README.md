@@ -168,8 +168,9 @@ All errors are returned in JSON format:
 
 ## 🔒 Security
 
-- Passwords are hashed using Spring Security
-- Basic security configuration is applied
+- Passwords are hashed using BCrypt via Spring Security
+- The current version does not implement authentication yet
+- API endpoints are currently open for development and testing purposes
 
 ---
 
