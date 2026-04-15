@@ -3,6 +3,7 @@ package com.example.shop.service;
 import com.example.shop.entity.Role;
 import com.example.shop.entity.User;
 import com.example.shop.exception.UserAlreadyExistsException;
+import com.example.shop.exception.UserDeletionException;
 import com.example.shop.exception.UserNotFoundException;
 import com.example.shop.repository.OrderRepository;
 import com.example.shop.repository.UserRepository;
@@ -71,7 +72,7 @@ public class UserService {
         User user = getUserById(userId);
 
         if(orderRepository.existsByUserId(userId)) {
-            throw new IllegalStateException("Cannot delete user with existing orders");
+            throw new UserDeletionException("Cannot delete user with existing orders");
         }
 
         userRepository.delete(user);

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,9 +38,13 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.CONFLICT, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(UserDeletionException.class)
+    public ResponseEntity<ApiError> handleUserDeletionException(UserDeletionException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
     @ExceptionHandler({
             IllegalArgumentException.class,
-            IllegalStateException.class,
             MissingServletRequestParameterException.class
     })
     public ResponseEntity<ApiError> handleBadRequest(Exception ex, HttpServletRequest request) {
