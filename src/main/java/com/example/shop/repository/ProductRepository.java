@@ -14,28 +14,32 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("""
            select distinct p from Product p
            left join fetch p.productImages
+           left join fetch p.variants
+           """)
+    List<Product> findAllWithDetails();
+
+    @Query("""
+           select distinct p from Product p
+           left join fetch p.productImages
+           left join fetch p.variants
            where p.id = :productId
            """)
-    Optional<Product> findByIdWithImages(Long productId);
+    Optional<Product> findByIdWithDetails(@Param("productId") Long productId);
 
     @Query("""
            select distinct p from Product p
            left join fetch p.productImages
+           left join fetch p.variants
            where p.category = :category
            """)
-    List<Product> findByCategoryWithImages(ProductCategory category);
+    List<Product> findByCategoryWithDetails(@Param("category") ProductCategory category);
 
     @Query("""
            select distinct p from Product p
            left join fetch p.productImages
+           left join fetch p.variants
+           where lower(p.name) like lower(concat('%', :productName, '%'))
            """)
-    List<Product> findAllWithImages();
-
-    @Query("""
-           select distinct p from Product p
-           left join fetch p.productImages
-           where lower(p.name) like lower(concat('%', :name, '%'))
-           """)
-    List<Product> searchByNameWithImages(@Param("name") String name);
+    List<Product> searchByNameWithDetails(@Param("productName") String productName);
 }
 

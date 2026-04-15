@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "products")
@@ -31,7 +33,7 @@ public class Product {
     private List<ProductImage> productImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductVariant> variants = new ArrayList<>();
+    private Set<ProductVariant> variants = new HashSet<>();
 
     public Product(String name, String description, ProductCategory category) {
         if (name == null || name.isBlank()) {

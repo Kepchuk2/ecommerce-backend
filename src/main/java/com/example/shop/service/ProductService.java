@@ -24,19 +24,15 @@ public class ProductService {
     private final ProductVariantRepository variantRepository;
 
     public List<Product> getAllProducts() {
-        List<Product> products = productRepository.findAllWithImages();
-        products.forEach(product -> Hibernate.initialize(product.getVariants()));
-        return products;
+        return productRepository.findAllWithDetails();
     }
 
     public Product getByProductId(Long productId) {
         validateProductId(productId);
 
-        Product product = productRepository.findByIdWithImages(productId)
+        return productRepository.findByIdWithDetails(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        Hibernate.initialize(product.getVariants());
-        return product;
     }
 
     public List<Product> getProductsByCategory(ProductCategory category) {
@@ -44,9 +40,8 @@ public class ProductService {
             throw new IllegalArgumentException("Category cannot be null");
         }
 
-        List<Product> products = productRepository.findByCategoryWithImages(category);
-        products.forEach(product -> Hibernate.initialize(product.getVariants()));
-        return products;
+        return productRepository.findByCategoryWithDetails(category);
+
     }
 
     public ProductVariant getVariantBySku(String sku) {
@@ -63,10 +58,8 @@ public class ProductService {
             throw new IllegalArgumentException("Product name cannot be null or blank");
         }
 
-        List<Product> products = productRepository.searchByNameWithImages(productName);
+        return productRepository.searchByNameWithDetails(productName);
 
-        products.forEach(product -> Hibernate.initialize(product.getVariants()));
-        return products;
     }
 
     @Transactional
@@ -76,17 +69,18 @@ public class ProductService {
         Product product = new Product(name, description, category);
         Product savedProduct = productRepository.save(product);
 
-        Product loadedProduct = productRepository.findByIdWithImages(savedProduct.getId())
+        return productRepository.findByIdWithDetails(savedProduct.getId())
                 .orElseThrow(() -> new ProductNotFoundException(savedProduct.getId()));
 
-        Hibernate.initialize(loadedProduct.getVariants());
-
-        return loadedProduct;
     }
 
     @Transactional
     public ProductVariant addVariantToProduct(Long productId, String sku, BigDecimal price, String size, String color) {
         validateProductId(productId);
+
+        if (sku == null || sku.isBlank()) {
+            throw new IllegalArgumentException("Product sku cannot be null or blank");
+        }
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
@@ -134,12 +128,9 @@ public class ProductService {
 
         productRepository.save(product);
 
-        Product loadedProduct = productRepository.findByIdWithImages(productId)
+        return productRepository.findByIdWithDetails(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        Hibernate.initialize(loadedProduct.getVariants());
-
-        return loadedProduct;
     }
 
     @Transactional
@@ -150,7 +141,7 @@ public class ProductService {
             throw new IllegalArgumentException("Image id cannot be null");
         }
 
-        Product product = productRepository.findByIdWithImages(productId)
+        Product product = productRepository.findByIdWithDetails(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
         ProductImage image = product.getProductImages().stream()
@@ -161,12 +152,9 @@ public class ProductService {
         product.removeImage(image);
         productRepository.save(product);
 
-        Product loadedProduct = productRepository.findByIdWithImages(productId)
+        return productRepository.findByIdWithDetails(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        Hibernate.initialize(loadedProduct.getVariants());
-
-        return loadedProduct;
     }
 
     @Transactional
