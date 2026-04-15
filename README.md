@@ -189,6 +189,7 @@ Covered services:
 - CartService
 - OrderService
 - ProductService
+- UserService
 
 Tests are written using:
 - JUnit 5
