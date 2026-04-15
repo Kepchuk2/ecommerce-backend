@@ -122,7 +122,17 @@ Or run via your IDE.
 
 POST /api/products
 
+Request:
+``json
 {
+  "name": "Hoodie",
+  "description": "Cool hoodie",
+  "category": "CLOTHING"
+}
+
+Response:
+{
+  "id": 1,
   "name": "Hoodie",
   "description": "Cool hoodie",
   "category": "CLOTHING"
@@ -165,24 +175,25 @@ All errors are returned in JSON format:
 
 ## 🧪 Tests
 
-Unit tests are implemented for the core service layer to verify business logic and the main application scenarios.
+Unit tests are implemented for the core service layer to verify business logic and key service scenarios.
 
-Current test coverage focuses on:
-- basic service operations
+Current coverage includes:
+- successful service operations
 - validation and exception handling
-- selected edge cases in business logic
+- selected business edge cases
+
+The tests validate business rules such as cart management, order creation, and product operations.
 
 Covered services:
 - CartService
 - OrderService
 - ProductService
-- UserService
 
 Tests are written using:
 - JUnit 5
 - Mockito
 
-The service layer is tested in isolation with mocked repositories, allowing the tests to focus on application behavior without involving the database.
+The service layer is tested in isolation with mocked repositories, ensuring fast and focused verification of business logic without using the database.
 
 ---
 
