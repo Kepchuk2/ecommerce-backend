@@ -14,12 +14,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateProductRequest {
 
-    @NotBlank
+    @NotBlank(message = "Name must not be blank")
     String name;
 
-    @NotBlank
+    @NotBlank(message = "Description must not be blank")
     String description;
 
-    @NotNull
+    @NotNull(message = "Category must not be null")
     ProductCategory category;
 }

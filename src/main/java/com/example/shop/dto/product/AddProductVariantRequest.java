@@ -16,10 +16,10 @@ import java.math.BigDecimal;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AddProductVariantRequest {
 
-    @NotBlank
+    @NotBlank(message = "SKU must not be blank")
     String sku;
 
-    @NotNull
+    @NotNull(message = "Price must not be null")
     @DecimalMin(value = "0.0", inclusive = true)
     BigDecimal price;
 

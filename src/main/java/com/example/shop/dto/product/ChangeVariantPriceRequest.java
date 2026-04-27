@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChangeVariantPriceRequest {
 
-    @NotNull
+    @NotNull(message = "Price must not be null")
     @DecimalMin(value = "0.0", inclusive = true)
     BigDecimal newPrice;
 
