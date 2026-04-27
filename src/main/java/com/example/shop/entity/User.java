@@ -34,9 +34,7 @@ public class User {
     private List<Order> orders = new ArrayList<>();
 
     public User(String email, String password, Role role) {
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email must not be null or blank");
-        }
+        validateEmail(email);
         validatePassword(password);
         validateRole(role);
 
@@ -55,7 +53,7 @@ public class User {
         this.role = role;
     }
 
-    public void setCartIternal(Cart cart) {
+    public void setCartInternal(Cart cart) {
         this.cart = cart;
     }
 
@@ -77,6 +75,12 @@ public class User {
     private void validateRole(Role role) {
         if (role == null) {
             throw new IllegalArgumentException("Role must not be null");
+        }
+    }
+
+    private void validateEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email must not be null or blank");
         }
     }
 }

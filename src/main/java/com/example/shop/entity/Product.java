@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "products")
@@ -36,15 +33,9 @@ public class Product {
     private Set<ProductVariant> variants = new HashSet<>();
 
     public Product(String name, String description, ProductCategory category) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Product name must not be null or blank");
-        }
-        if (description == null || description.isBlank()) {
-            throw new IllegalArgumentException("Product description must not be null or blank");
-        }
-        if (category == null) {
-            throw new IllegalArgumentException("Product category must not be null");
-        }
+        validateName(name);
+        validateDescription(description);
+        validateCategory(category);
 
         this.name = name;
         this.description = description;
@@ -52,11 +43,12 @@ public class Product {
     }
 
     public void addVariant(ProductVariant variant) {
-        validationProductVariant(variant);
-        if (variant.getProduct() != null && variant.getProduct() != this) {
-            throw new IllegalStateException("Variant already belongs to another product");
-        }
-        if (variants.contains(variant)) {
+        validateVariantCanBeAddedToProduct(variant);
+
+        boolean alreadyExists = variants.stream()
+                        .anyMatch(v -> Objects.equals(v.getSku(), variant.getSku()));
+
+        if (alreadyExists) {
             return;
         }
 
@@ -65,44 +57,93 @@ public class Product {
     }
 
     public void removeVariant(ProductVariant variant) {
-        validationProductVariant(variant);
+        validateVariantBelongsToThisProduct(variant);
 
-        if (variants.remove(variant)) {
-            variant.setProduct(null);
+        ProductVariant existing = variants.stream()
+                .filter(v -> Objects.equals(v.getSku(), variant.getSku()))
+                .findFirst()
+                .orElse(null);
+
+        if (existing != null) {
+            variants.remove(existing);
+            existing.setProduct(null);
         }
     }
 
     public void addImage(ProductImage image) {
-        validationProductImage(image);
-
-        if (image.getProduct() != null && image.getProduct() != this) {
-            throw new IllegalStateException("Image already belongs to another product");
-        }
-        if (productImages.contains(image)) {
-            return;
-        }
+        validateImageBelongsToThisProduct(image);
 
         productImages.add(image);
         image.setProduct(this);
     }
 
     public void removeImage(ProductImage image) {
-        validationProductImage(image);
+        validateProductImage(image);
 
         if (productImages.remove(image)) {
             image.setProduct(null);
         }
     }
 
-    private void validationProductVariant(ProductVariant variant) {
+    private void validateProductVariant(ProductVariant variant) {
         if (variant == null) {
             throw new IllegalArgumentException("Product variant must not be null");
         }
     }
 
-    private void validationProductImage(ProductImage image) {
+    private void validateProductImage(ProductImage image) {
         if (image == null) {
             throw new IllegalArgumentException("Product image must not be null");
+        }
+    }
+
+    private void validateName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Product name must not be null or blank");
+        }
+    }
+
+    private void validateDescription(String description) {
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Product description must not be null or blank");
+        }
+    }
+
+    private void validateCategory(ProductCategory category) {
+        if (category == null) {
+            throw new IllegalArgumentException("Product category must not be null");
+        }
+    }
+
+    private void validateVariantCanBeAddedToProduct(ProductVariant variant) {
+        validateProductVariant(variant);
+
+        if (variant.getProduct() != null && variant.getProduct() != this) {
+            throw new IllegalStateException("Variant already belongs to another product");
+        }
+    }
+
+    private void validateVariantBelongsToThisProduct(ProductVariant variant) {
+        validateProductVariant(variant);
+
+        if (variant.getProduct() != this) {
+            throw new IllegalArgumentException("Variant does not belong to this product");
+        }
+    }
+
+    private void validateImageCanBeAddedToProduct(ProductImage image) {
+        validateProductImage(image);
+
+        if (image.getProduct() != null && image.getProduct() != this) {
+            throw new IllegalStateException("Image already belongs to another product");
+        }
+    }
+
+    private void validateImageBelongsToThisProduct(ProductImage image) {
+        validateProductImage(image);
+
+        if (image.getProduct() != this) {
+            throw new IllegalArgumentException("Image does not belong to this product");
         }
     }
 }

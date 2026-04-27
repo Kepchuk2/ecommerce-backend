@@ -57,12 +57,8 @@ public class Order {
 
     public Order(OrderStatus status, BigDecimal totalPrice, Currency currency, String deliveryAddress, String deliveryMethod) {
         validateOrderStatus(status);
-        if (totalPrice == null || totalPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Total price must be greater than or equal to zero");
-        }
-        if (currency == null) {
-            throw new IllegalArgumentException("Currency must not be null");
-        }
+        validateTotalPrice(totalPrice);
+        validateCurrency(currency);
 
         this.status = status;
         this.totalPrice = totalPrice;
@@ -78,30 +74,24 @@ public class Order {
     }
 
     public void assignTrackingNumber(String trackingNumber) {
-        if (trackingNumber == null || trackingNumber.isBlank()) {
-            throw new IllegalArgumentException("Tracking number must not be blank");
-        }
+        validateTrackingNumber(trackingNumber);
+
         this.trackingNumber = trackingNumber;
     }
 
     public void addItem(OrderItem item) {
-        validateOrderItem(item);
-        if (item.getOrder() != null && item.getOrder() != this) {
-            throw new IllegalArgumentException("Order item already belongs to another order");
-        }
-        if (items.contains(item)) {
-            return;
-        }
+        validateItemCanBeAddedToOrder(item);
 
         items.add(item);
         item.setOrder(this);
     }
 
     public void removeItem(OrderItem item) {
-        validateOrderItem(item);
+        validateItemBelongsToThisOrder(item);
 
-        items.remove(item);
-        item.setOrder(null);
+        if (items.remove(item)) {
+            item.setOrder(null);
+        }
     }
 
     public BigDecimal calculateTotal() {
@@ -127,6 +117,40 @@ public class Order {
     private void validateOrderStatus(OrderStatus status) {
         if (status == null) {
             throw new IllegalArgumentException("Order status must not be null");
+        }
+    }
+
+    private void validateItemCanBeAddedToOrder(OrderItem item) {
+        validateOrderItem(item);
+
+        if (item.getOrder() != null && item.getOrder() != this) {
+            throw new IllegalArgumentException("Order item already belongs to another order");
+        }
+    }
+
+    private void validateItemBelongsToThisOrder(OrderItem item) {
+        validateOrderItem(item);
+
+        if (item.getOrder() != this) {
+            throw new IllegalArgumentException("Order item does not belong to this order");
+        }
+    }
+
+    private void validateTrackingNumber(String trackingNumber) {
+        if (trackingNumber == null || trackingNumber.isBlank()) {
+            throw new IllegalArgumentException("Tracking number must not be blank or null");
+        }
+    }
+
+    private void validateTotalPrice(BigDecimal totalPrice) {
+        if (totalPrice == null || totalPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Total price must be greater than or equal to zero");
+        }
+    }
+
+    private void validateCurrency(Currency currency) {
+        if (currency == null) {
+            throw new IllegalArgumentException("Currency must not be null");
         }
     }
 }

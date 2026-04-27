@@ -38,18 +38,10 @@ public class OrderItem {
     private Order order;
 
     public OrderItem(String sku, Long variantId, BigDecimal price, String productName, int quantity, String size, String color) {
-        if (sku == null || sku.isBlank()) {
-            throw new IllegalArgumentException("SKU must not be blank");
-        }
-        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Price must be greater than or equal to zero");
-        }
-        if (productName == null || productName.isBlank()) {
-            throw new IllegalArgumentException("Product name must not be blank");
-        }
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than zero");
-        }
+        validateSku(sku);
+        validatePrice(price);
+        validateProductName(productName);
+        validateQuantity(quantity);
 
         this.sku = sku;
         this.variantId = variantId;
@@ -61,9 +53,7 @@ public class OrderItem {
     }
 
     public OrderItem(CartItem cartItem) {
-        if (cartItem == null) {
-            throw new IllegalArgumentException("Cart item must not be null");
-        }
+        validateCartItem(cartItem);
 
         this.sku = cartItem.getSku();
         this.variantId = cartItem.getProductVariant() != null ? cartItem.getProductVariant().getId() : null;
@@ -78,7 +68,37 @@ public class OrderItem {
         return price.multiply(BigDecimal.valueOf(quantity));
     }
 
-    public void setOrder(Order order) {
+    void setOrder(Order order) {
         this.order = order;
+    }
+
+    private void validateSku(String sku) {
+        if (sku == null || sku.isBlank()) {
+            throw new IllegalArgumentException("SKU must not be blank or null");
+        }
+    }
+
+    private void validatePrice(BigDecimal price) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price must be greater than or equal to zero");
+        }
+    }
+
+    private void validateProductName(String productName) {
+        if (productName == null || productName.isBlank()) {
+            throw new IllegalArgumentException("Product name must not be blank or null");
+        }
+    }
+
+    private void validateQuantity(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than to zero");
+        }
+    }
+
+    private void validateCartItem(CartItem cartItem) {
+        if (cartItem == null) {
+            throw new IllegalArgumentException("Cart item must not be null");
+        }
     }
 }

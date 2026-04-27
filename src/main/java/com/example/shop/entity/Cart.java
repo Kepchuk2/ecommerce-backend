@@ -3,7 +3,6 @@ package com.example.shop.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -47,21 +46,14 @@ public class Cart {
     }
 
     public void addItem(CartItem item) {
-        validateCartItem(item);
-
-        if (items.contains(item)) {
-            return;
-        }
-        if (item.getCart() != null && item.getCart() != this) {
-            throw new IllegalArgumentException("Cart item already belongs to another cart");
-        }
+        validateItemCanBeAddedToCart(item);
 
         items.add(item);
         item.setCart(this);
     }
 
     public void removeItem(CartItem item) {
-        validateCartItem(item);
+        validateItemBelongsToThisCart(item);
 
         if (items.remove(item)) {
             item.setCart(null);
@@ -106,12 +98,28 @@ public class Cart {
         }
 
         this.user = user;
-        user.setCartIternal(this);
+        user.setCartInternal(this);
     }
 
     private void validateCartItem(CartItem item) {
         if (item == null) {
             throw new IllegalArgumentException("Cart item must not be null");
+        }
+    }
+
+    private void validateItemBelongsToThisCart(CartItem item) {
+        validateCartItem(item);
+
+        if (item.getCart() != this) {
+            throw new IllegalArgumentException("Cart item already belongs to another cart");
+        }
+    }
+
+    private void validateItemCanBeAddedToCart(CartItem item) {
+        validateCartItem(item);
+
+        if (item.getCart() != null && item.getCart() != this) {
+            throw new IllegalArgumentException("Cart item already belongs to another cart");
         }
     }
 }

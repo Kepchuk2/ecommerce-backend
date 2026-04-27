@@ -30,12 +30,8 @@ public class ProductImage {
     private Product product;
 
     public ProductImage(String imageUrl, String altText, int position) {
-        if (imageUrl == null || imageUrl.isBlank()) {
-            throw new IllegalArgumentException("Image URL must not be blank");
-        }
-        if (position < 0) {
-            throw new IllegalArgumentException("Image position must be greater than or equal to zero");
-        }
+        validateImageUrl(imageUrl);
+        validatePosition(position);
 
         this.imageUrl = imageUrl;
         this.altText = (altText != null && altText.isBlank()) ? null : altText;
@@ -44,5 +40,17 @@ public class ProductImage {
 
     void setProduct(Product product) {
         this.product = product;
+    }
+
+    private void validateImageUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            throw new IllegalArgumentException("Image URL must not be null or blank");
+        }
+    }
+
+    private void validatePosition(int position) {
+        if (position < 0) {
+            throw new IllegalArgumentException("Position must be greater than or equal to zero");
+        }
     }
 }

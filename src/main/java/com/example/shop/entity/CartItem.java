@@ -3,13 +3,7 @@ package com.example.shop.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "cart_items",
@@ -51,13 +45,8 @@ public class CartItem {
     private ProductVariant productVariant;
 
     public CartItem(ProductVariant variant, int quantity) {
-        if (variant == null) {
-            throw new IllegalArgumentException("Product variant must not be null");
-        }
-
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than zero");
-        }
+        validateVariant(variant);
+        validateQuantity(quantity);
 
         this.productVariant = variant;
         this.sku = variant.getSku();
@@ -68,18 +57,29 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public void setCart(Cart cart) {
+    void setCart(Cart cart) {
         this.cart = cart;
     }
 
     public void setQuantity(int quantity) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than zero");
-        }
+        validateQuantity(quantity);
+
         this.quantity = quantity;
     }
 
     public BigDecimal getTotalPrice() {
         return price.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    private void validateQuantity(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+    }
+
+    private void validateVariant(ProductVariant variant) {
+        if (variant == null) {
+            throw new IllegalArgumentException("Product variant must not be null");
+        }
     }
 }

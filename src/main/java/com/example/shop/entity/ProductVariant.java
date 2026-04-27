@@ -34,10 +34,7 @@ public class ProductVariant {
     private Product product;
 
     public ProductVariant(String sku, BigDecimal price, String size, String color) {
-        if (sku == null || sku.isBlank()) {
-            throw new IllegalArgumentException("SKU must not be blank");
-        }
-
+        validateSku(sku);
         validatePrice(price);
 
         this.sku = sku;
@@ -56,22 +53,15 @@ public class ProductVariant {
         this.price = price;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ProductVariant that)) return false;
-        if (id == null || that.id == null) return false;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
-
     private void validatePrice(BigDecimal price) {
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Price must be greater than or equal to zero");
+        }
+    }
+
+    private void validateSku(String sku) {
+        if (sku == null || sku.isBlank()) {
+            throw new IllegalArgumentException("SKU must not be null or blank");
         }
     }
 }
