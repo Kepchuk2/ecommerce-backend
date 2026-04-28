@@ -1,6 +1,7 @@
 package com.example.shop.entity;
 
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "product_variants",
         indexes = {
         @Index(name = "idx_product_variants_product", columnList = "product_id")
@@ -20,6 +22,7 @@ public class ProductVariant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @EqualsAndHashCode.Include
     @Column(nullable = false, unique = true)
     private String sku;
 

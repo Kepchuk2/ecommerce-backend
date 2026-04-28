@@ -61,10 +61,8 @@ public class Cart {
     }
 
     public void clearItems() {
-        while (!items.isEmpty()) {
-            CartItem item = items.get(0);
-            removeItem(item);
-        }
+        items.forEach(item -> item.setCart(null));
+        items.clear();
     }
 
     public Optional<CartItem> findItemByVariantId(Long variantId) {

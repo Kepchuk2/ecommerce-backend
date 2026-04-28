@@ -45,15 +45,9 @@ public class Product {
     public void addVariant(ProductVariant variant) {
         validateVariantCanBeAddedToProduct(variant);
 
-        boolean alreadyExists = variants.stream()
-                        .anyMatch(v -> Objects.equals(v.getSku(), variant.getSku()));
-
-        if (alreadyExists) {
-            return;
+        if (variants.add(variant)) {
+            variant.setProduct(this);
         }
-
-        variants.add(variant);
-        variant.setProduct(this);
     }
 
     public void removeVariant(ProductVariant variant) {
@@ -71,14 +65,14 @@ public class Product {
     }
 
     public void addImage(ProductImage image) {
-        validateImageBelongsToThisProduct(image);
+        validateImageCanBeAddedToProduct(image);
 
         productImages.add(image);
         image.setProduct(this);
     }
 
     public void removeImage(ProductImage image) {
-        validateProductImage(image);
+        validateImageBelongsToThisProduct(image);
 
         if (productImages.remove(image)) {
             image.setProduct(null);
