@@ -12,6 +12,8 @@ import java.util.*;
 
 public final class ProductMapper {
 
+    private  ProductMapper() {}
+
     public static ProductVariantResponse toProductVariantResponse(ProductVariant variant) {
         if (variant == null) {
             return null;
@@ -117,7 +119,7 @@ public final class ProductMapper {
         response.setId(product.getId());
         response.setName(product.getName());
         response.setDescription(product.getDescription());
-        response.setCategory(product.getCategory().name());
+        response.setCategory(product.getCategory());
         response.setImages(toProductImageResponseList(product.getProductImages()));
 
         return response;

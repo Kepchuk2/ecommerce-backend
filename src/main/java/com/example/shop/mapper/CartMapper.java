@@ -8,7 +8,9 @@ import com.example.shop.entity.CartItem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CartMapper {
+public final class CartMapper {
+
+    private CartMapper() {}
 
     public static CartItemResponse toCartItemResponse(CartItem item) {
         if (item == null) {

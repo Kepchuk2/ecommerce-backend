@@ -8,6 +8,8 @@ import java.util.List;
 
 public class UserMapper {
 
+    private UserMapper() {}
+
     public static UserResponse toUserResponse(User user) {
         if (user == null) {
             return null;

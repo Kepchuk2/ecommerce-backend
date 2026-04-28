@@ -10,6 +10,8 @@ import java.util.List;
 
 public final class OrderMapper {
 
+    private OrderMapper() {}
+
     private static OrderItemResponse toItemResponse(OrderItem item) {
         if (item == null) {
             return null;
