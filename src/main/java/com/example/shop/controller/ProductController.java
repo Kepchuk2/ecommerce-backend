@@ -8,6 +8,7 @@ import com.example.shop.mapper.ProductMapper;
 import com.example.shop.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,6 +52,7 @@ public class ProductController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ProductResponse createProduct(@Valid @RequestBody CreateProductRequest request) {
         Product product = productService.createProduct(request.getName(), request.getDescription(), request.getCategory());
         return ProductMapper.toProductResponse(product);
@@ -63,9 +65,9 @@ public class ProductController {
     }
 
     @DeleteMapping("/{productId}/variants/{variantId}")
-    public ProductVariantResponse removeVariantFromProduct(@PathVariable Long productId, @PathVariable Long variantId) {
-        ProductVariant variant = productService.removeVariantFromProduct(productId, variantId);
-        return ProductMapper.toProductVariantResponse(variant);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeVariantFromProduct(@PathVariable Long productId, @PathVariable Long variantId) {
+        productService.removeVariantFromProduct(productId, variantId);
     }
 
     @PostMapping("/{productId}/images")
@@ -75,9 +77,9 @@ public class ProductController {
     }
 
     @DeleteMapping("/{productId}/images/{imageId}")
-    public ProductResponse removeImageFromProduct(@PathVariable Long productId, @PathVariable Long imageId) {
-        Product product =  productService.removeImageFromProduct(productId, imageId);
-        return ProductMapper.toProductResponse(product);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeImageFromProduct(@PathVariable Long productId, @PathVariable Long imageId) {
+        productService.removeImageFromProduct(productId, imageId);
     }
 
     @PutMapping("/variants/{variantId}/price")

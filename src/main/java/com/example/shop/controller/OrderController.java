@@ -1,5 +1,6 @@
 package com.example.shop.controller;
 
+import com.example.shop.dto.order.CreateOrderRequest;
 import com.example.shop.dto.order.OrderResponse;
 import com.example.shop.dto.order.UpdateOrderStatusRequest;
 import com.example.shop.entity.Order;
@@ -7,6 +8,7 @@ import com.example.shop.mapper.OrderMapper;
 import com.example.shop.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,15 +32,19 @@ public class OrderController {
         return OrderMapper.toOrderResponseList(orders);
     }
 
-    @PostMapping("/from-user-cart/{userId}")
-    public OrderResponse createOrderFromUserCart(@PathVariable Long userId) {
-        Order order = orderService.createOrderFromUserCart(userId);
-        return OrderMapper.toOrderResponse(order);
-    }
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public OrderResponse createOrder(@Valid @RequestBody CreateOrderRequest request) {
+        Order order;
 
-    @PostMapping("/from-session-cart/{sessionId}")
-    public OrderResponse createOrderFromSessionCart(@PathVariable String sessionId) {
-        Order order = orderService.createOrderFromSessionCart(sessionId);
+        if (request.getUserId() != null) {
+            order = orderService.createOrderFromUserCart(request.getUserId());
+        } else if (request.getSessionId() != null) {
+            order = orderService.createOrderFromSessionCart(request.getSessionId());
+        } else {
+            throw new IllegalArgumentException("Either userId or sessionId must be provided to create an order");
+        }
+
         return OrderMapper.toOrderResponse(order);
     }
 
