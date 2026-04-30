@@ -2,7 +2,6 @@ package com.example.shop.service;
 
 import com.example.shop.entity.*;
 import com.example.shop.exception.CartNotFoundException;
-import com.example.shop.exception.ProductNotFoundException;
 import com.example.shop.exception.UserNotFoundException;
 import com.example.shop.exception.VariantNotFoundException;
 import com.example.shop.repository.CartRepository;

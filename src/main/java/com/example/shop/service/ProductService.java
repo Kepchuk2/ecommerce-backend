@@ -8,7 +8,6 @@ import com.example.shop.exception.*;
 import com.example.shop.repository.ProductRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,11 +92,11 @@ public class ProductService {
         product.addVariant(productVariant);
 
         productRepository.save(product);
-        return  productVariant;
+        return productVariant;
     }
 
     @Transactional
-    public ProductVariant removeVariantFromProduct(Long productId, Long variantId) {
+    public void removeVariantFromProduct(Long productId, Long variantId) {
         validateProductId(productId);
         validateVariantId(variantId);
 
@@ -112,8 +111,6 @@ public class ProductService {
         }
 
         product.removeVariant(variant);
-        productRepository.save(product);
-        return variant;
     }
 
     @Transactional
@@ -134,7 +131,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Product removeImageFromProduct(Long productId, Long imageId) {
+    public void removeImageFromProduct(Long productId, Long imageId) {
         validateProductId(productId);
 
         if (imageId == null) {
@@ -150,11 +147,6 @@ public class ProductService {
                 .orElseThrow(() -> new ImageNotFoundException(imageId));
 
         product.removeImage(image);
-        productRepository.save(product);
-
-        return productRepository.findByIdWithDetails(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
-
     }
 
     @Transactional

@@ -66,30 +66,24 @@ public class OrderService {
             throw new IllegalArgumentException("Order status cannot be null");
         }
 
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
         order.changeStatus(orderStatus);
 
-        Order savedOrder = orderRepository.save(order);
-
-        return orderRepository.findByIdWithDetails(savedOrder.getId())
-                .orElseThrow(() -> new OrderNotFoundException(savedOrder.getId()));
+        return order;
     }
 
     @Transactional
     public Order cancelOrder(Long orderId) {
         validateOrderId(orderId);
 
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
         order.changeStatus(OrderStatus.CANCELLED);
 
-        Order savedOrder = orderRepository.save(order);
-
-        return orderRepository.findByIdWithDetails(savedOrder.getId())
-                .orElseThrow(() -> new OrderNotFoundException(savedOrder.getId()));
+        return order;
     }
 
     private Order createOrderFromCart(Cart cart, User user) {
