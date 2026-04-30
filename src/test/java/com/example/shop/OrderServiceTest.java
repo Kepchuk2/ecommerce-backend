@@ -78,33 +78,15 @@ public class OrderServiceTest {
         Order order = new Order();
         setId(order, 1L);
 
-        Order updatedOrder = new Order();
-        setId(updatedOrder, 1L);
-        updatedOrder.changeStatus(OrderStatus.SHIPPED);
-
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-        when(orderRepository.save(any(Order.class))).thenReturn(updatedOrder);
-        when(orderRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(updatedOrder));
+        when(orderRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(order));
 
         Order result = orderService.updateOrderStatus(1L, OrderStatus.SHIPPED);
 
         assertEquals(OrderStatus.SHIPPED, result.getStatus());
-    }
 
-    @Test
-    void updateOrderStatus_shouldThrowWhenOrderNotFoundAfterSave() throws Exception {
-        Order order = new Order();
-        setId(order, 1L);
+        verify(orderRepository).findByIdWithDetails(1L);
 
-        Order savedOrder = new Order();
-        setId(savedOrder, 1L);
-
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-        when(orderRepository.save(any(Order.class))).thenReturn(order);
-        when(orderRepository.findByIdWithDetails(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(OrderNotFoundException.class,
-                () -> orderService.updateOrderStatus(1L, OrderStatus.SHIPPED));
+        verify(orderRepository, never()).save(any(Order.class));
     }
 
     private void setId(Object target, Long idValue) throws Exception {

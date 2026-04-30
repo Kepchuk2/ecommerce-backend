@@ -41,29 +41,28 @@ class ProductServiceTest {
         Long productId = 1L;
         Product product = createProduct(productId, "Hoodie", "Warm hoodie", ProductCategory.CLOTHING);
 
-        when(productRepository.findByIdWithImages(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdWithDetails(productId)).thenReturn(Optional.of(product));
 
-        try (MockedStatic<Hibernate> mockedHibernate = mockStatic(Hibernate.class)) {
-            Product result = productService.getByProductId(productId);
+        Product result = productService.getByProductId(productId);
 
-            assertNotNull(result);
-            assertEquals(productId, result.getId());
-            assertEquals("Hoodie", result.getName());
+        assertNotNull(result);
+        assertEquals(productId, result.getId());
+        assertEquals("Hoodie", result.getName());
 
-            verify(productRepository).findByIdWithImages(productId);
-        }
+        verify(productRepository).findByIdWithDetails(productId);
+
     }
 
     @Test
     void getByProductId_shouldThrow_whenNotFound() {
         Long productId = 1L;
 
-        when(productRepository.findByIdWithImages(productId)).thenReturn(Optional.empty());
+        when(productRepository.findByIdWithDetails(productId)).thenReturn(Optional.empty());
 
         assertThrows(ProductNotFoundException.class,
                 () -> productService.getByProductId(productId));
 
-        verify(productRepository).findByIdWithImages(productId);
+        verify(productRepository).findByIdWithDetails(productId);
     }
 
     @Test
@@ -71,18 +70,17 @@ class ProductServiceTest {
         Product savedProduct = createProduct(1L, "Hoodie", "Warm hoodie", ProductCategory.CLOTHING);
 
         when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
-        when(productRepository.findByIdWithImages(1L)).thenReturn(Optional.of(savedProduct));
+        when(productRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(savedProduct));
 
-        try (MockedStatic<Hibernate> mockedHibernate = mockStatic(Hibernate.class)) {
-            Product result = productService.createProduct("Hoodie", "Warm hoodie", ProductCategory.CLOTHING);
+        Product result = productService.createProduct("Hoodie", "Warm hoodie", ProductCategory.CLOTHING);
 
-            assertNotNull(result);
-            assertEquals("Hoodie", result.getName());
-            assertEquals(ProductCategory.CLOTHING, result.getCategory());
+        assertNotNull(result);
+        assertEquals("Hoodie", result.getName());
+        assertEquals(ProductCategory.CLOTHING, result.getCategory());
 
-            verify(productRepository).save(any(Product.class));
-            verify(productRepository).findByIdWithImages(1L);
-        }
+        verify(productRepository).save(any(Product.class));
+        verify(productRepository).findByIdWithDetails(1L);
+
     }
 
     @Test
@@ -161,17 +159,13 @@ class ProductServiceTest {
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(variantRepository.findById(variantId)).thenReturn(Optional.of(variant));
-        when(productRepository.save(product)).thenReturn(product);
 
-        ProductVariant result = productService.removeVariantFromProduct(productId, variantId);
+        productService.removeVariantFromProduct(productId, variantId);
 
-        assertNotNull(result);
-        assertEquals(variantId, result.getId());
         assertTrue(product.getVariants().isEmpty());
 
         verify(productRepository).findById(productId);
         verify(variantRepository).findById(variantId);
-        verify(productRepository).save(product);
     }
 
     private Product createProduct(Long id, String name, String description, ProductCategory category) {

@@ -3,6 +3,7 @@ package com.example.shop;
 import com.example.shop.entity.Role;
 import com.example.shop.entity.User;
 import com.example.shop.exception.UserAlreadyExistsException;
+import com.example.shop.exception.UserDeletionException;
 import com.example.shop.repository.OrderRepository;
 import com.example.shop.repository.UserRepository;
 import com.example.shop.service.UserService;
@@ -98,8 +99,8 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
         when(orderRepository.existsByUserId(1L)).thenReturn(true);
 
-        IllegalStateException exception = assertThrows(
-                IllegalStateException.class,
+        UserDeletionException exception = assertThrows(
+                UserDeletionException.class,
                 () -> userService.deleteUserById(1L)
         );
 
