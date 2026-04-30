@@ -1,214 +1,122 @@
-# 🛒 E-commerce Backend (Spring Boot)
+# 🛒 E-commerce Backend (Spring Boot & Docker)
 
 ## 📖 About the Project
+My name is Rostyslav (Rost), and I am an aspiring Java Developer.
+This project is a backend solution for an e-commerce platform, built to address real-world engineering challenges such as complex entity relationships, transaction management, and containerized deployment.
 
-This project was built from scratch as part of my journey to become a Java Backend Developer.  
-It focuses on real-world backend challenges such as entity relationships, transactions, lazy loading, and API design.
-
-This is a backend application for an e-commerce system built with Java and Spring Boot.  
-The project implements core business logic such as users, products, carts, and orders.
+The main focus of the project is Clean Architecture, Data Security, and Database Performance.
 
 ---
 
 ## 🚀 Tech Stack
-
-- Java 17+
-- Spring Boot
-- Spring Web
-- Spring Data JPA (Hibernate)
-- Spring Security
-- PostgreSQL
-- Maven
-- Lombok
-- Jakarta Validation
+- Java 21 (latest LTS features)
+- Spring Boot 3.x (Web, Data JPA, Security)
+- PostgreSQL (relational database)
+- Hibernate (ORM with query optimization)
+- Docker & Docker Compose (containerization)
+- JUnit 5 & Mockito (unit testing)
+- Maven Wrapper (environment-independent builds)
 
 ---
 
 ## 📦 Features
 
 ### 👤 Users
-- Create user
-- Get user by ID
-- Get user by email
-- Change password
-- Delete user
+- User creation with email normalization
+- Secure password hashing using BCrypt
+- Safe deletion logic with order existence validation
 
 ### 🛒 Cart
-- Cart for authenticated user
-- Cart for guest (via sessionId)
-- Add items to cart
-- Get cart
+- Cart management for authenticated users
+- Guest cart support via sessionId
+- Automatic quantity updates and item removal
 
 ### 📦 Orders
-- Create order from user cart
-- Create order from guest cart
-- Get order by ID
-- Get all orders for user
-- Update order status
+- Order creation from user or guest cart
+- Dynamic price recalculation
+- Optimized fetching using join fetch (findByIdWithDetails)
 
-### 🧥 Products
-- Create product
-- Get product by ID
-- Get products by category
-- Get all products
+### 🧥 Products & Variants
+- Support for multiple variants (size, color, price)
+- SKU-based search with unique constraint validation
+- Optimized variant removal using Hibernate Dirty Checking
 
-### 🎯 Product Variants
-- Add variant (size, color, price)
-- Change variant price
-- Find by SKU
+---
 
-### 🖼 Product Images
-- Add images to product
+## 🛠 Key Engineering Solutions
+
+### 🔹 Database Optimization (Dirty Checking)
+The service layer leverages Hibernate’s Dirty Checking mechanism.
+This eliminates redundant .save() calls, reduces database round-trips, and keeps the codebase clean.
+
+### 🔹 Infrastructure as Code (Docker)
+The application is fully containerized using Docker.
+A single docker-compose.yml file orchestrates both the Spring Boot app and PostgreSQL database.
+Persistent storage is handled via Docker volumes.
+
+### 🔹 Secure Secret Management
+Sensitive data (like database credentials) is stored in environment variables and managed through a .env file, which is excluded from version control.
+
+### 🔹 Global Error Handling
+A centralized GlobalExceptionHandler handles all application exceptions and returns consistent JSON responses with meaningful error messages.
 
 ---
 
 ## 🏗 Architecture
 
-The project follows a layered architecture:
+The project follows a classic layered architecture:
 
-Controller → Service → Repository → Entity  
-                    ↓  
-                   DTO  
-                    ↓  
-                  Mapper  
+Controller → Service → Repository → Entity
 
-- Controller – handles HTTP requests  
-- Service – contains business logic  
-- Repository – interacts with database  
-- Entity – database models  
-- DTO + Mapper – data transformation  
+- Controller — handles HTTP requests and responses
+- Service — contains business logic and transaction management
+- Repository — interacts with the database via Spring Data JPA
+- Entity — represents database models
 
 ---
 
 ## ⚙️ Getting Started
 
 ### 1. Clone the repository
-
-git clone https://github.com/Kepchuk2/ecommerce-backend.git  
+git clone https://github.com/Kepchuk2/ecommerce-backend.git
 cd ecommerce-backend
 
----
+### 2. Setup environment variables
+cp .env.example .env
 
-### 2. Setup PostgreSQL
+Fill in your values (or use defaults for local testing).
 
-Create a database:
+### 3. Build and run
+./mvnw clean package
+docker-compose up --build
 
-shop_db
-
----
-
-### 3. Configure application.properties
-
-spring.datasource.url=jdbc:postgresql://localhost:5432/shop_db  
-spring.datasource.username=YOUR_USERNAME  
-spring.datasource.password=YOUR_PASSWORD  
-
-spring.jpa.hibernate.ddl-auto=update  
-spring.jpa.show-sql=true  
+The API will be available at:
+http://localhost:8080
 
 ---
 
-### 4. Run the application
+## 🧪 Testing
 
-./mvnw spring-boot:run  
+Core business logic is covered with unit tests in key modules:
 
-Or run via your IDE.
-
----
-
-## 📬 API Examples
-
-### ➕ Create Product
-
-POST /api/products
-
-Request:
-``json
-{
-  "name": "Hoodie",
-  "description": "Cool hoodie",
-  "category": "CLOTHING"
-}
-
-Response:
-{
-  "id": 1,
-  "name": "Hoodie",
-  "description": "Cool hoodie",
-  "category": "CLOTHING"
-}
+- CartService — guest and authenticated cart logic
+- OrderService — order creation and price recalculation
+- ProductService — variant management and deletion flows
+- UserService — validation and secure user operations
 
 ---
 
-### 🛒 Get Cart by sessionId
+## 📬 API Endpoints (Examples)
 
-GET /api/carts/guest/{sessionId}
-
----
-
-### 📦 Create Order from User Cart
-
-POST /api/orders/from-user-cart/{userId}
-
----
-
-## ❗ Error Handling
-
-The project uses a global exception handler.  
-All errors are returned in JSON format:
-
-{
-  "timestamp": "...",
-  "status": 404,
-  "error": "Not Found",
-  "message": "User not found"
-}
-
----
-
-## 🔒 Security
-
-- Passwords are hashed using BCrypt via Spring Security
-- The current version does not implement authentication yet
-- API endpoints are currently open for development and testing purposes
-
----
-
-## 🧪 Tests
-
-Unit tests are implemented for the core service layer to verify business logic and key service scenarios.
-
-Current coverage includes:
-- successful service operations
-- validation and exception handling
-- selected business edge cases
-
-The tests validate business rules such as cart management, order creation, and product operations.
-
-Covered services:
-- CartService
-- OrderService
-- ProductService
-- UserService
-
-Tests are written using:
-- JUnit 5
-- Mockito
-
-The service layer is tested in isolation with mocked repositories, ensuring fast and focused verification of business logic without using the database.
-
----
-
-## 📌 Future Improvements
-
-- Authentication (login / JWT)
-- Pagination & filtering
-- Docker support
-- Improved test coverage
+| Method | Endpoint | Description |
+|--------|----------|------------|
+| GET | /api/products | Retrieve all products |
+| POST | /api/orders/from-user-cart/{id} | Create order from user cart |
+| DELETE | /api/products/{id}/variants/{vId} | Remove product variant |
 
 ---
 
 ## 👨‍💻 Author
 
-Rostyslav  
-Junior Java Developer
+Rostyslav
+Junior Java Developer 🚀
