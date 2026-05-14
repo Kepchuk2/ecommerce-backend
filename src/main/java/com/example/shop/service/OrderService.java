@@ -92,7 +92,7 @@ public class OrderService {
         Order order = new Order();
 
         if (user != null) {
-            order.assignUser(user);
+            user.addOrder(order);
         }
 
         addCartItemsToOrder(cart, order);
