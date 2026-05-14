@@ -22,46 +22,37 @@ public class ProductController {
 
     @GetMapping("/{productId}")
     public ProductResponse getProductById(@PathVariable Long productId) {
-        Product product = productService.getByProductId(productId);
-        return ProductMapper.toProductResponse(product);
+        return productService.getByProductId(productId);
     }
 
     @GetMapping
     public List<ProductListResponse> getProducts(@RequestParam(required = false) ProductCategory category) {
-        List<Product> products;
-
         if (category == null) {
-            products = productService.getAllProducts();
-        } else {
-            products = productService.getProductsByCategory(category);
+            return productService.getAllProducts();
         }
 
-        return ProductMapper.toProductListResponseList(products);
+        return productService.getProductsByCategory(category);
     }
 
     @GetMapping("/sku/{sku}")
     public ProductVariantResponse getProductVariantBySku(@PathVariable String sku) {
-        ProductVariant variant = productService.getVariantBySku(sku);
-        return ProductMapper.toProductVariantResponse(variant);
+        return productService.getVariantBySku(sku);
     }
 
     @GetMapping("/search")
     public List<ProductResponse> searchProductsByName(@RequestParam String productName) {
-        List<Product> products = productService.searchProductByName(productName);
-        return ProductMapper.toProductResponseList(products);
+        return productService.searchProductByName(productName);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponse createProduct(@Valid @RequestBody CreateProductRequest request) {
-        Product product = productService.createProduct(request.getName(), request.getDescription(), request.getCategory());
-        return ProductMapper.toProductResponse(product);
+        return productService.createProduct(request.getName(), request.getDescription(), request.getCategory());
     }
 
     @PostMapping("/{productId}/variants")
     public ProductVariantResponse addVariantToProduct(@PathVariable Long productId, @Valid @RequestBody AddProductVariantRequest request) {
-        ProductVariant variant = productService.addVariantToProduct(productId, request.getSku(), request.getPrice(), request.getSize(), request.getColor());
-        return ProductMapper.toProductVariantResponse(variant);
+        return productService.addVariantToProduct(productId, request.getSku(), request.getPrice(), request.getSize(), request.getColor());
     }
 
     @DeleteMapping("/{productId}/variants/{variantId}")
@@ -72,8 +63,7 @@ public class ProductController {
 
     @PostMapping("/{productId}/images")
     public ProductResponse addImageToProduct(@PathVariable Long productId, @Valid @RequestBody AddProductImageRequest request) {
-        Product product =productService.addImageToProduct(productId, request.getImageUrl(), request.getAltText(), request.getPosition());
-        return ProductMapper.toProductResponse(product);
+        return productService.addImageToProduct(productId, request.getImageUrl(), request.getAltText(), request.getPosition());
     }
 
     @DeleteMapping("/{productId}/images/{imageId}")
@@ -84,7 +74,6 @@ public class ProductController {
 
     @PutMapping("/variants/{variantId}/price")
     public ProductVariantResponse changeVariantPrice(@PathVariable Long variantId, @Valid @RequestBody ChangeVariantPriceRequest request) {
-        ProductVariant variant = productService.changeVariantPrice(variantId, request.getNewPrice());
-        return ProductMapper.toProductVariantResponse(variant);
+        return productService.changeVariantPrice(variantId, request.getNewPrice());
     }
 }

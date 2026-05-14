@@ -14,14 +14,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("""
            select distinct p from Product p
            left join fetch p.productImages
-           left join fetch p.variants
            """)
     List<Product> findAllWithDetails();
 
     @Query("""
            select distinct p from Product p
            left join fetch p.productImages
-           left join fetch p.variants
            where p.id = :productId
            """)
     Optional<Product> findByIdWithDetails(@Param("productId") Long productId);
@@ -29,7 +27,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("""
            select distinct p from Product p
            left join fetch p.productImages
-           left join fetch p.variants
            where p.category = :category
            """)
     List<Product> findByCategoryWithDetails(@Param("category") ProductCategory category);
@@ -37,7 +34,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("""
            select distinct p from Product p
            left join fetch p.productImages
-           left join fetch p.variants
            where lower(p.name) like lower(concat('%', :productName, '%'))
            """)
     List<Product> searchByNameWithDetails(@Param("productName") String productName);

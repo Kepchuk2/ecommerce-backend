@@ -1,5 +1,7 @@
 package com.example.shop;
 
+import com.example.shop.dto.product.ProductResponse;
+import com.example.shop.dto.product.ProductVariantResponse;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductCategory;
 import com.example.shop.entity.ProductVariant;
@@ -43,7 +45,7 @@ class ProductServiceTest {
 
         when(productRepository.findByIdWithDetails(productId)).thenReturn(Optional.of(product));
 
-        Product result = productService.getByProductId(productId);
+        ProductResponse result = productService.getByProductId(productId);
 
         assertNotNull(result);
         assertEquals(productId, result.getId());
@@ -72,7 +74,7 @@ class ProductServiceTest {
         when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
         when(productRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(savedProduct));
 
-        Product result = productService.createProduct("Hoodie", "Warm hoodie", ProductCategory.CLOTHING);
+        ProductResponse result = productService.createProduct("Hoodie", "Warm hoodie", ProductCategory.CLOTHING);
 
         assertNotNull(result);
         assertEquals("Hoodie", result.getName());
@@ -92,7 +94,7 @@ class ProductServiceTest {
         when(variantRepository.existsBySku("SKU-001")).thenReturn(false);
         when(productRepository.save(product)).thenReturn(product);
 
-        ProductVariant result = productService.addVariantToProduct(
+        ProductVariantResponse result = productService.addVariantToProduct(
                 productId,
                 "SKU-001",
                 new BigDecimal("99.99"),
@@ -132,14 +134,14 @@ class ProductServiceTest {
     }
 
     @Test
-    void changeVariantPrice_shouldUpdatePrice() {
+    void changeVariantPrice_shouldUpdatePriceAndReturnResponse() {
         Long variantId = 10L;
         ProductVariant variant = createVariant(variantId, "SKU-001", new BigDecimal("99.99"));
 
         when(variantRepository.findById(variantId)).thenReturn(Optional.of(variant));
         when(variantRepository.save(variant)).thenReturn(variant);
 
-        ProductVariant result = productService.changeVariantPrice(variantId, new BigDecimal("149.99"));
+        ProductVariantResponse result = productService.changeVariantPrice(variantId, new BigDecimal("149.99"));
 
         assertNotNull(result);
         assertEquals(new BigDecimal("149.99"), result.getPrice());

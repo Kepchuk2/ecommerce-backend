@@ -3,6 +3,7 @@ package com.example.shop.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.*;
 
@@ -26,11 +27,13 @@ public class Product {
     @Column(nullable = false)
     private ProductCategory category;
 
+    @BatchSize(size = 20)
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> productImages = new ArrayList<>();
 
+    @BatchSize(size = 20)
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductVariant> variants = new HashSet<>();
+    private List<ProductVariant> variants = new ArrayList<>();
 
     public Product(String name, String description, ProductCategory category) {
         validateName(name);

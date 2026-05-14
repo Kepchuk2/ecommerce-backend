@@ -1,10 +1,14 @@
 package com.example.shop.service;
 
+import com.example.shop.dto.product.ProductListResponse;
+import com.example.shop.dto.product.ProductResponse;
+import com.example.shop.dto.product.ProductVariantResponse;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductCategory;
 import com.example.shop.entity.ProductImage;
 import com.example.shop.entity.ProductVariant;
 import com.example.shop.exception.*;
+import com.example.shop.mapper.ProductMapper;
 import com.example.shop.repository.ProductRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,59 +26,64 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAllWithDetails();
+    public List<ProductListResponse> getAllProducts() {
+        List<Product> products = productRepository.findAllWithDetails();
+
+        return ProductMapper.toProductListResponseList(products);
     }
 
-    public Product getByProductId(Long productId) {
+    public ProductResponse getByProductId(Long productId) {
         validateProductId(productId);
 
-        return productRepository.findByIdWithDetails(productId)
+        Product product = productRepository.findByIdWithDetails(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
+        return ProductMapper.toProductResponse(product);
     }
 
-    public List<Product> getProductsByCategory(ProductCategory category) {
+    public List<ProductListResponse> getProductsByCategory(ProductCategory category) {
         if (category == null) {
             throw new IllegalArgumentException("Category cannot be null");
         }
 
-        return productRepository.findByCategoryWithDetails(category);
+        List<Product> products = productRepository.findByCategoryWithDetails(category);
+        return ProductMapper.toProductListResponseList(products);
 
     }
 
-    public ProductVariant getVariantBySku(String sku) {
+    public ProductVariantResponse getVariantBySku(String sku) {
         if (sku == null || sku.isBlank()) {
             throw new IllegalArgumentException("Sku cannot be null or blank");
         }
 
-        return variantRepository.findBySku(sku)
+        ProductVariant variant = variantRepository.findBySku(sku)
                 .orElseThrow(() -> new VariantNotFoundException(sku));
+
+        return ProductMapper.toProductVariantResponse(variant);
     }
 
-    public List<Product> searchProductByName(String productName) {
+    public List<ProductResponse> searchProductByName(String productName) {
         if (productName == null || productName.isBlank()) {
             throw new IllegalArgumentException("Product name cannot be null or blank");
         }
 
-        return productRepository.searchByNameWithDetails(productName);
-
+        List<Product> products = productRepository.searchByNameWithDetails(productName);
+        return ProductMapper.toProductResponseList(products);
     }
 
     @Transactional
-    public Product createProduct(String name, String description, ProductCategory category) {
+    public ProductResponse createProduct(String name, String description, ProductCategory category) {
         validateProductData(name, description, category);
 
         Product product = new Product(name, description, category);
         Product savedProduct = productRepository.save(product);
 
-        return productRepository.findByIdWithDetails(savedProduct.getId())
-                .orElseThrow(() -> new ProductNotFoundException(savedProduct.getId()));
+        return getByProductId(savedProduct.getId());
 
     }
 
     @Transactional
-    public ProductVariant addVariantToProduct(Long productId, String sku, BigDecimal price, String size, String color) {
+    public ProductVariantResponse addVariantToProduct(Long productId, String sku, BigDecimal price, String size, String color) {
         validateProductId(productId);
 
         if (sku == null || sku.isBlank()) {
@@ -92,7 +101,7 @@ public class ProductService {
         product.addVariant(productVariant);
 
         productRepository.save(product);
-        return productVariant;
+        return ProductMapper.toProductVariantResponse(productVariant);
     }
 
     @Transactional
@@ -114,7 +123,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Product addImageToProduct(Long productId, String imageUrl, String altText, int position) {
+    public ProductResponse addImageToProduct(Long productId, String imageUrl, String altText, int position) {
         validateProductId(productId);
 
         Product product = productRepository.findById(productId)
@@ -125,8 +134,7 @@ public class ProductService {
 
         productRepository.save(product);
 
-        return productRepository.findByIdWithDetails(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
+        return getByProductId(productId);
 
     }
 
@@ -150,14 +158,14 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductVariant changeVariantPrice(Long variantId, BigDecimal newPrice) {
+    public ProductVariantResponse changeVariantPrice(Long variantId, BigDecimal newPrice) {
         validateVariantId(variantId);
 
         ProductVariant variant = variantRepository.findById(variantId)
                 .orElseThrow(() -> new VariantNotFoundException(variantId));
 
         variant.changePrice(newPrice);
-        return variantRepository.save(variant);
+        return ProductMapper.toProductVariantResponse(variantRepository.save(variant));
     }
 
     private void validateProductId(Long productId) {
