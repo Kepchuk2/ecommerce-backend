@@ -94,7 +94,7 @@ public class Order {
         }
     }
 
-    public BigDecimal calculateTotal() {
+    BigDecimal calculateTotal() {
         return items.stream()
                 .map(OrderItem::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

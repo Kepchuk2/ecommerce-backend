@@ -53,7 +53,7 @@ public class User {
         this.role = role;
     }
 
-    public void setCartInternal(Cart cart) {
+    void setCartInternal(Cart cart) {
         this.cart = cart;
     }
 
