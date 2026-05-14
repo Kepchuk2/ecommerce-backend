@@ -1,122 +1,94 @@
-# 🛒 E-commerce Backend (Spring Boot & Docker)
+🛒 E-commerce Backend (Spring Boot & Docker)
+📖 About the Project
+My name is Rostyslav, and I am a Java Backend Developer. This project is a scalable backend system for an e-commerce platform, built with a focus on Clean Architecture, data security, and database performance.
 
-## 📖 About the Project
-My name is Rostyslav (Rost), and I am an aspiring Java Developer.
-This project is a backend solution for an e-commerce platform, built to address real-world engineering challenges such as complex entity relationships, transaction management, and containerized deployment.
-
-The main focus of the project is Clean Architecture, Data Security, and Database Performance.
+The system solves key e-commerce challenges: managing complex product relationships (variants, images), flexible cart handling, and reliable order lifecycles.
 
 ---
 
 ## 🚀 Tech Stack
-- Java 21 (latest LTS features)
-- Spring Boot 3.x (Web, Data JPA, Security)
-- PostgreSQL (relational database)
-- Hibernate (ORM with query optimization)
-- Docker & Docker Compose (containerization)
-- JUnit 5 & Mockito (unit testing)
-- Maven Wrapper (environment-independent builds)
+- Java 21: Leveraging modern language features and syntax.
+- Spring Boot 3.2.5: Core framework (Web, Data JPA, Security, Validation).
+- PostgreSQL 15: Relational database for storing business entities.
+- Hibernate 6: ORM with deep query optimization.
+- Docker & Docker Compose: Full infrastructure containerization.
+- JUnit 5 & Mockito: Unit testing of core business logic.
+- Lombok: Boilerplate code reduction.
 
 ---
 
-## 📦 Features
+## 🏗 Architecture & Engineering Solutions
 
-### 👤 Users
-- User creation with email normalization
-- Secure password hashing using BCrypt
-- Safe deletion logic with order existence validation
+🔹 Database Optimization & Solving the N+1 Problem
+- Fetch Joins: Critical repository queries utilize JOIN FETCH (JPQL) to load associated collections (cart items, order items) in a single DB trip, entirely avoiding the N+1 problem.
 
-### 🛒 Cart
-- Cart management for authenticated users
-- Guest cart support via sessionId
-- Automatic quantity updates and item removal
+- Dirty Checking: The service layer relies on Hibernate's automatic dirty checking mechanism. This keeps the codebase free of redundant .save() calls and makes transactions more transparent.
 
-### 📦 Orders
-- Order creation from user or guest cart
-- Dynamic price recalculation
-- Optimized fetching using join fetch (findByIdWithDetails)
+- Indexing & Constraints: Unique constraints (e.g., on cart_id + variant_id and sku) are enforced at the DB level, guaranteeing data integrity even during concurrent requests.
 
-### 🧥 Products & Variants
-- Support for multiple variants (size, color, price)
-- SKU-based search with unique constraint validation
-- Optimized variant removal using Hibernate Dirty Checking
+🔹 Security & Validation
+- Multi-Layer Validation: Jakarta Bean Validation at the DTO level ensures incoming data correctness (email format, password strength, positive prices) before it ever reaches the service layer.
 
----
+- Security: User passwords are securely hashed using BCrypt. User deletion logic includes rigorous checks against existing orders to preserve financial history.
 
-## 🛠 Key Engineering Solutions
+- Secret Management: All sensitive credentials (DB accounts) are externalized into environment variables and managed via a .env file, which is excluded from version control.
+  
+🔹 API Design & UX
+- Flexible Carts: Supports both anonymous shoppers (via X-Session-Id headers) and authenticated users, with seamless cart tracking.
 
-### 🔹 Database Optimization (Dirty Checking)
-The service layer leverages Hibernate’s Dirty Checking mechanism.
-This eliminates redundant .save() calls, reduces database round-trips, and keeps the codebase clean.
+- RESTful Principles: Strict adherence to HTTP method semantics (GET, POST, PUT, DELETE, PATCH) and correct status code handling.
 
-### 🔹 Infrastructure as Code (Docker)
-The application is fully containerized using Docker.
-A single docker-compose.yml file orchestrates both the Spring Boot app and PostgreSQL database.
-Persistent storage is handled via Docker volumes.
-
-### 🔹 Secure Secret Management
-Sensitive data (like database credentials) is stored in environment variables and managed through a .env file, which is excluded from version control.
-
-### 🔹 Global Error Handling
-A centralized GlobalExceptionHandler handles all application exceptions and returns consistent JSON responses with meaningful error messages.
-
----
-
-## 🏗 Architecture
-
-The project follows a classic layered architecture:
-
-Controller → Service → Repository → Entity
-
-- Controller — handles HTTP requests and responses
-- Service — contains business logic and transaction management
-- Repository — interacts with the database via Spring Data JPA
-- Entity — represents database models
+- Global Error Handling: Centralized exception handling via @RestControllerAdvice returns standardized ApiError JSON responses with detailed validation feedback.
 
 ---
 
 ## ⚙️ Getting Started
 
-### 1. Clone the repository
+### 1. Environment Setup
+Clone the repository and create your environment variables file:
+
 git clone https://github.com/Kepchuk2/ecommerce-backend.git
+
 cd ecommerce-backend
 
-### 2. Setup environment variables
 cp .env.example .env
 
-Fill in your values (or use defaults for local testing).
+### 2. Build & Run via Docker
+The project is fully containerized and ready to launch:
 
-### 3. Build and run
-./mvnw clean package
+./mvnw clean package -DskipTests
+
 docker-compose up --build
 
-The API will be available at:
-http://localhost:8080
+Once running, the API will be available at: http://localhost:8080
 
 ---
 
 ## 🧪 Testing
 
-Core business logic is covered with unit tests in key modules:
+Core application logic is covered by isolated unit tests using mocks:
 
-- CartService — guest and authenticated cart logic
-- OrderService — order creation and price recalculation
+- CartService: Adding, updating, and clearing carts.
+- OrderService: Order creation and total price calculation.
 - ProductService — variant management and deletion flows
-- UserService — validation and secure user operations
+- UserService: Registration, validation, and role management.
+
+To run the tests locally: ./mvnw test
 
 ---
 
 ## 📬 API Endpoints (Examples)
 
-| Method | Endpoint | Description |
-|--------|----------|------------|
-| GET | /api/products | Retrieve all products |
-| POST | /api/orders/from-user-cart/{id} | Create order from user cart |
-| DELETE | /api/products/{id}/variants/{vId} | Remove product variant |
-
+| Method | Endpoint         | Description                                   |
+|--------|------------------|-----------------------------------------------|
+| GET    | /api/products    | Retrieve all products                         |
+| POST   | /api/orders      | Create order from user cart (user or session) |
+| GET    | /api/carts/guest | Retrieve guest cart by session ID             |
+| DELETE | /api/products/{id}/variants/{vId} | Remove product variant                        |
 ---
 
 ## 👨‍💻 Author
 
 Rostyslav
+
 Junior Java Developer 🚀
