@@ -7,137 +7,33 @@ import com.example.shop.dto.product.ProductVariantResponse;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductImage;
 import com.example.shop.entity.ProductVariant;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 import java.util.*;
 
-public final class ProductMapper {
+@Mapper(componentModel = "spring")
+public interface ProductMapper {
 
-    private  ProductMapper() {}
+    ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 
-    public static ProductVariantResponse toProductVariantResponse(ProductVariant variant) {
-        if (variant == null) {
-            return null;
-        }
+    @Mapping(target = "images", source = "productImages")
+    ProductResponse toProductResponse(Product product);
 
-        ProductVariantResponse response = new ProductVariantResponse();
+    ProductVariantResponse toProductVariantResponse(ProductVariant variant);
 
-        response.setId(variant.getId());
-        response.setSku(variant.getSku());
-        response.setPrice(variant.getPrice());
-        response.setSize(variant.getSize());
-        response.setColor(variant.getColor());
+    List<ProductVariantResponse> toProductVariantResponseList(Collection<ProductVariant> variants);
 
-        return  response;
-    }
+    ProductImageResponse toProductImageResponse(ProductImage image);
 
-    public static Set<ProductVariantResponse> toProductVariantResponseList(Collection<ProductVariant> variants) {
-        Set<ProductVariantResponse> responses = new HashSet<>();
+    List<ProductImageResponse> toProductImageResponseList(List<ProductImage> images);
 
-        if (variants == null) {
-            return responses;
-        }
+    List<ProductResponse> toProductResponseList(List<Product> products);
 
-        for (ProductVariant variant : variants) {
-            if (variant != null) {
-                responses.add(toProductVariantResponse(variant));
-            }
-        }
+    @Mapping(target = "images", source = "productImages")
+    ProductListResponse toProductListResponse(Product product);
 
-        return responses;
-    }
+    List<ProductListResponse> toProductListResponseList(List<Product> products);
 
-    public static ProductImageResponse toProductImageResponse(ProductImage image) {
-        if (image == null) {
-            return null;
-        }
-
-        ProductImageResponse response = new ProductImageResponse();
-
-        response.setId(image.getId());
-        response.setImageUrl(image.getImageUrl());
-        response.setAltText(image.getAltText());
-        response.setPosition(image.getPosition());
-
-        return response;
-    }
-
-    public static List<ProductImageResponse> toProductImageResponseList(List<ProductImage> images) {
-        List<ProductImageResponse> responses = new ArrayList<>();
-
-        if (images == null) {
-            return responses;
-        }
-
-        for (ProductImage image : images) {
-            if (image != null) {
-                responses.add(toProductImageResponse(image));
-            }
-        }
-
-        return responses;
-    }
-
-    public static ProductResponse toProductResponse(Product product) {
-        if (product == null) {
-            return null;
-        }
-
-        ProductResponse response = new ProductResponse();
-
-        response.setId(product.getId());
-        response.setDescription(product.getDescription());
-        response.setName(product.getName());
-        response.setCategory(product.getCategory());
-        response.setImages(toProductImageResponseList(product.getProductImages()));
-        response.setVariants(toProductVariantResponseList(product.getVariants()));
-
-        return response;
-    }
-
-    public static List<ProductResponse> toProductResponseList(List<Product> products) {
-        if (products == null) {
-            return List.of();
-        }
-
-        List<ProductResponse> responses = new ArrayList<>();
-
-        for (Product product : products) {
-            if (product != null) {
-                responses.add(toProductResponse(product));
-            }
-        }
-
-        return responses;
-    }
-
-    public static ProductListResponse toProductListResponse(Product product) {
-        if (product == null) {
-            return null;
-        }
-
-        ProductListResponse response = new ProductListResponse();
-        response.setId(product.getId());
-        response.setName(product.getName());
-        response.setDescription(product.getDescription());
-        response.setCategory(product.getCategory());
-        response.setImages(toProductImageResponseList(product.getProductImages()));
-
-        return response;
-    }
-
-    public static List<ProductListResponse> toProductListResponseList(List<Product> products) {
-        List<ProductListResponse> responses = new ArrayList<>();
-
-        if (products == null) {
-            return responses;
-        }
-
-        for (Product product : products) {
-            if (product != null) {
-                responses.add(toProductListResponse(product));
-            }
-        }
-
-        return responses;
-    }
 }

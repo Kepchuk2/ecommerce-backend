@@ -2,39 +2,15 @@ package com.example.shop.mapper;
 
 import com.example.shop.dto.user.UserResponse;
 import com.example.shop.entity.User;
+import org.mapstruct.Mapper;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class UserMapper {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-    private UserMapper() {}
+    UserResponse toUserResponse(User user);
 
-    public static UserResponse toUserResponse(User user) {
-        if (user == null) {
-            return null;
-        }
+    List<UserResponse> toUserResponseList(List<User> users);
 
-        UserResponse response = new UserResponse();
-
-        response.setId(user.getId());
-        response.setEmail(user.getEmail());
-        response.setRole(user.getRole());
-
-        return  response;
-    }
-
-    public static List<UserResponse> toUserResponseList(List<User> users) {
-        List<UserResponse> responses = new ArrayList<>();
-
-        if (users == null) {
-            return responses;
-        }
-
-        for (User user : users) {
-            responses.add(toUserResponse(user));
-        }
-
-        return responses;
-    }
 }
