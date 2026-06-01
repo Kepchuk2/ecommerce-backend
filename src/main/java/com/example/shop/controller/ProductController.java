@@ -1,10 +1,7 @@
 package com.example.shop.controller;
 
 import com.example.shop.dto.product.*;
-import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductCategory;
-import com.example.shop.entity.ProductVariant;
-import com.example.shop.mapper.ProductMapper;
 import com.example.shop.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,12 +44,12 @@ public class ProductController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponse createProduct(@Valid @RequestBody CreateProductRequest request) {
-        return productService.createProduct(request.getName(), request.getDescription(), request.getCategory());
+        return productService.createProduct(request.name(), request.description(), request.category());
     }
 
     @PostMapping("/{productId}/variants")
     public ProductVariantResponse addVariantToProduct(@PathVariable Long productId, @Valid @RequestBody AddProductVariantRequest request) {
-        return productService.addVariantToProduct(productId, request.getSku(), request.getPrice(), request.getSize(), request.getColor());
+        return productService.addVariantToProduct(productId, request.sku(), request.price(), request.size(), request.color());
     }
 
     @DeleteMapping("/{productId}/variants/{variantId}")
@@ -63,7 +60,7 @@ public class ProductController {
 
     @PostMapping("/{productId}/images")
     public ProductResponse addImageToProduct(@PathVariable Long productId, @Valid @RequestBody AddProductImageRequest request) {
-        return productService.addImageToProduct(productId, request.getImageUrl(), request.getAltText(), request.getPosition());
+        return productService.addImageToProduct(productId, request.imageUrl(), request.altText(), request.position());
     }
 
     @DeleteMapping("/{productId}/images/{imageId}")
@@ -74,6 +71,6 @@ public class ProductController {
 
     @PutMapping("/variants/{variantId}/price")
     public ProductVariantResponse changeVariantPrice(@PathVariable Long variantId, @Valid @RequestBody ChangeVariantPriceRequest request) {
-        return productService.changeVariantPrice(variantId, request.getNewPrice());
+        return productService.changeVariantPrice(variantId, request.newPrice());
     }
 }

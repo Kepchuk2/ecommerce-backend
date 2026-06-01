@@ -5,8 +5,6 @@ import com.example.shop.dto.user.ChangeRoleRequest;
 import com.example.shop.dto.user.CreateUserRequest;
 import com.example.shop.dto.user.UserResponse;
 import com.example.shop.entity.Role;
-import com.example.shop.entity.User;
-import com.example.shop.mapper.UserMapper;
 import com.example.shop.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,24 +22,23 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public UserResponse getUserById(@PathVariable Long userId) {
-        return UserMapper.toUserResponse(userService.getUserById(userId));
+        return userService.getUserById(userId);
     }
 
     @GetMapping("/email")
     public UserResponse getUserByEmail(@RequestParam String email) {
-        return UserMapper.toUserResponse(userService.getUserByEmail(email));
+        return userService.getUserByEmail(email);
     }
 
     @GetMapping
     public List<UserResponse> getUsersByRole(@RequestParam Role role) {
-        return UserMapper.toUserResponseList(userService.getUsersByRole(role));
+        return userService.getUsersByRole(role);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
-        User user = userService.createUser(request.getEmail(), request.getPassword(), request.getRole());
-        return UserMapper.toUserResponse(user);
+        return userService.createUser(request.email(), request.password(), request.role());
     }
 
     @DeleteMapping("/{userId}")
@@ -52,11 +49,11 @@ public class UserController {
 
     @PatchMapping("/{userId}/password")
     public UserResponse changePassword(@PathVariable Long userId, @Valid @RequestBody ChangePasswordRequest request) {
-        return UserMapper.toUserResponse(userService.changePassword(userId, request.getNewPassword()));
+        return userService.changePassword(userId, request.newPassword());
     }
 
     @PatchMapping("/{userId}/role")
     public UserResponse changeRole(@PathVariable Long userId, @Valid @RequestBody ChangeRoleRequest request) {
-        return UserMapper.toUserResponse(userService.changeRole(userId, request.getNewRole()));
+        return userService.changeRole(userId, request.newRole());
     }
 }
