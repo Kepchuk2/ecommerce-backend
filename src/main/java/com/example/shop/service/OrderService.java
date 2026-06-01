@@ -1,9 +1,11 @@
 package com.example.shop.service;
 
+import com.example.shop.dto.order.OrderResponse;
 import com.example.shop.entity.*;
 import com.example.shop.exception.CartNotFoundException;
 import com.example.shop.exception.OrderNotFoundException;
 import com.example.shop.exception.UserNotFoundException;
+import com.example.shop.mapper.OrderMapper;
 import com.example.shop.repository.CartRepository;
 import com.example.shop.repository.OrderRepository;
 import com.example.shop.repository.UserRepository;
@@ -21,61 +23,63 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
+    private final OrderMapper orderMapper;
 
-    public Order getOrderById(Long orderId) {
+    public OrderResponse getOrderById(Long orderId) {
         validateOrderId(orderId);
 
-        return orderRepository.findByIdWithDetails(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        return orderMapper.toOrderResponse(order);
     }
 
-    public List<Order> getOrdersByUserId(Long userId) {
+    public List<OrderResponse> getOrdersByUserId(Long userId) {
         validateUserId(userId);
 
-        return orderRepository.findByUserIdWithDetails(userId);
+        List<Order> order = orderRepository.findByUserIdWithDetails(userId);
+
+        return orderMapper.toOrderResponseList(order);
     }
 
     @Transactional
-    public Order createOrderFromUserCart(Long userId) {
+    public OrderResponse createOrderFromUserCart(Long userId) {
         validateUserId(userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        Cart cart = cartRepository.findByUserId(userId)
+        Cart cart = cartRepository.findByUserIdWithItems(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
 
         return createOrderFromCart(cart, user);
     }
 
     @Transactional
-    public Order createOrderFromSessionCart(String sessionId) {
+    public OrderResponse createOrderFromSessionCart(String sessionId) {
         validateSessionId(sessionId);
 
-        Cart cart = cartRepository.findBySessionId(sessionId)
+        Cart cart = cartRepository.findBySessionIdWithItems(sessionId)
                 .orElseThrow(() -> new CartNotFoundException(sessionId));
 
         return createOrderFromCart(cart, null);
     }
 
     @Transactional
-    public Order updateOrderStatus(Long orderId, OrderStatus orderStatus) {
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus orderStatus) {
         validateOrderId(orderId);
-
-        if (orderStatus == null) {
-            throw new IllegalArgumentException("Order status cannot be null");
-        }
+        validateOrderStatus(orderStatus);
 
         Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
         order.changeStatus(orderStatus);
 
-        return order;
+        return orderMapper.toOrderResponse(order);
     }
 
     @Transactional
-    public Order cancelOrder(Long orderId) {
+    public OrderResponse cancelOrder(Long orderId) {
         validateOrderId(orderId);
 
         Order order = orderRepository.findByIdWithDetails(orderId)
@@ -83,10 +87,10 @@ public class OrderService {
 
         order.changeStatus(OrderStatus.CANCELLED);
 
-        return order;
+        return orderMapper.toOrderResponse(order);
     }
 
-    private Order createOrderFromCart(Cart cart, User user) {
+    private OrderResponse createOrderFromCart(Cart cart, User user) {
         validateCartNotEmpty(cart);
 
         Order order = new Order();
@@ -101,8 +105,10 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
         cart.clearItems();
 
-        return orderRepository.findByIdWithDetails(savedOrder.getId())
+        Order fullOrder = orderRepository.findByIdWithDetails(savedOrder.getId())
                 .orElseThrow(() -> new OrderNotFoundException(savedOrder.getId()));
+
+        return orderMapper.toOrderResponse(fullOrder);
     }
 
     private void validateOrderId(Long orderId) {
@@ -133,6 +139,12 @@ public class OrderService {
         for (CartItem cartItem : cart.getItems()) {
             OrderItem orderItem = new OrderItem(cartItem);
             order.addItem(orderItem);
+        }
+    }
+
+    private void validateOrderStatus(OrderStatus orderStatus) {
+        if (orderStatus == null) {
+            throw new IllegalArgumentException("Order status must not be null.");
         }
     }
 }

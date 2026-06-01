@@ -25,11 +25,12 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
+    private final ProductMapper productMapper;
 
     public List<ProductListResponse> getAllProducts() {
         List<Product> products = productRepository.findAllWithDetails();
 
-        return ProductMapper.toProductListResponseList(products);
+        return productMapper.toProductListResponseList(products);
     }
 
     public ProductResponse getByProductId(Long productId) {
@@ -38,7 +39,7 @@ public class ProductService {
         Product product = productRepository.findByIdWithDetails(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        return ProductMapper.toProductResponse(product);
+        return productMapper.toProductResponse(product);
     }
 
     public List<ProductListResponse> getProductsByCategory(ProductCategory category) {
@@ -47,7 +48,7 @@ public class ProductService {
         }
 
         List<Product> products = productRepository.findByCategoryWithDetails(category);
-        return ProductMapper.toProductListResponseList(products);
+        return productMapper.toProductListResponseList(products);
 
     }
 
@@ -59,7 +60,7 @@ public class ProductService {
         ProductVariant variant = variantRepository.findBySku(sku)
                 .orElseThrow(() -> new VariantNotFoundException(sku));
 
-        return ProductMapper.toProductVariantResponse(variant);
+        return productMapper.toProductVariantResponse(variant);
     }
 
     public List<ProductResponse> searchProductByName(String productName) {
@@ -68,7 +69,7 @@ public class ProductService {
         }
 
         List<Product> products = productRepository.searchByNameWithDetails(productName);
-        return ProductMapper.toProductResponseList(products);
+        return productMapper.toProductResponseList(products);
     }
 
     @Transactional
@@ -101,7 +102,7 @@ public class ProductService {
         product.addVariant(productVariant);
 
         productRepository.save(product);
-        return ProductMapper.toProductVariantResponse(productVariant);
+        return productMapper.toProductVariantResponse(productVariant);
     }
 
     @Transactional
@@ -165,7 +166,7 @@ public class ProductService {
                 .orElseThrow(() -> new VariantNotFoundException(variantId));
 
         variant.changePrice(newPrice);
-        return ProductMapper.toProductVariantResponse(variantRepository.save(variant));
+        return productMapper.toProductVariantResponse(variantRepository.save(variant));
     }
 
     private void validateProductId(Long productId) {

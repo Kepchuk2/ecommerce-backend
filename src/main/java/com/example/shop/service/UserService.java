@@ -1,13 +1,16 @@
 package com.example.shop.service;
 
+import com.example.shop.dto.user.UserResponse;
 import com.example.shop.entity.Role;
 import com.example.shop.entity.User;
 import com.example.shop.exception.UserAlreadyExistsException;
 import com.example.shop.exception.UserDeletionException;
 import com.example.shop.exception.UserNotFoundException;
+import com.example.shop.mapper.UserMapper;
 import com.example.shop.repository.OrderRepository;
 import com.example.shop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.control.MappingControl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,35 +25,40 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final UserMapper userMapper;
 
-    public User getUserById(Long userId) {
+    public UserResponse getUserById(Long userId) {
         validateUserId(userId);
 
-        return userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return userMapper.toUserResponse(user);
     }
 
-    public User getUserByEmail(String email) {
+    public UserResponse getUserByEmail(String email) {
         validateEmail(email);
 
         String normalizedEmail = normalizeEmail(email);
 
-        return userRepository.findByEmail(normalizedEmail)
+        User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new UserNotFoundException(normalizedEmail));
+
+        return userMapper.toUserResponse(user);
     }
 
-    public List<User> getUsersByRole(Role role) {
+    public List<UserResponse> getUsersByRole(Role role) {
         validateRole(role);
 
-        return userRepository.findByRole(role);
+        List<User> user = userRepository.findByRole(role);
+
+        return userMapper.toUserResponseList(user);
     }
 
     @Transactional
-    public User createUser(String email, String password, Role role) {
+    public UserResponse createUser(String email, String password, Role role) {
         validateEmail(email);
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("password cannot be null or blank");
-        }
+        validatePassword(password);
         validateRole(role);
 
         String normalizedEmail = normalizeEmail(email);
@@ -62,16 +70,19 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(password);
 
         User user = new User(normalizedEmail, encodedPassword, role);
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        return userMapper.toUserResponse(savedUser);
     }
 
     @Transactional
     public void deleteUserById(Long userId) {
         validateUserId(userId);
 
-        User user = getUserById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
-        if(orderRepository.existsByUserId(userId)) {
+        if (orderRepository.existsByUserId(userId)) {
             throw new UserDeletionException("Cannot delete user with existing orders");
         }
 
@@ -79,30 +90,29 @@ public class UserService {
     }
 
     @Transactional
-    public User changePassword(Long userId, String newPassword) {
+    public UserResponse changePassword(Long userId, String newPassword) {
         validateUserId(userId);
+        validateNewPassword(newPassword);
 
-        if (newPassword == null || newPassword.isBlank()) {
-            throw new IllegalArgumentException("newPassword cannot be null or blank");
-        }
-
-        User user = getUserById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         String encodedPassword = passwordEncoder.encode(newPassword);
         user.changePassword(encodedPassword);
 
-        return userRepository.save(user);
+        return userMapper.toUserResponse(user);
     }
 
     @Transactional
-    public User changeRole(Long userId, Role role) {
+    public UserResponse changeRole(Long userId, Role role) {
         validateUserId(userId);
         validateRole(role);
 
-        User user = getUserById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         user.changeRole(role);
-        return userRepository.save(user);
+        return userMapper.toUserResponse(user);
     }
 
     private String normalizeEmail(String email) {
@@ -124,6 +134,18 @@ public class UserService {
     private void validateRole(Role role) {
         if (role == null) {
             throw new IllegalArgumentException("role cannot be null");
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new IllegalArgumentException("password cannot be null or blank");
+        }
+    }
+
+    private void validateNewPassword(String newPassword) {
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new IllegalArgumentException("newPassword cannot be null or blank");
         }
     }
 }

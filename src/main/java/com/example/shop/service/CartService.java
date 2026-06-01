@@ -1,9 +1,11 @@
 package com.example.shop.service;
 
+import com.example.shop.dto.cart.CartResponse;
 import com.example.shop.entity.*;
 import com.example.shop.exception.CartNotFoundException;
 import com.example.shop.exception.UserNotFoundException;
 import com.example.shop.exception.VariantNotFoundException;
+import com.example.shop.mapper.CartMapper;
 import com.example.shop.repository.CartRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import com.example.shop.repository.UserRepository;
@@ -21,54 +23,61 @@ public class CartService {
     private final CartRepository cartRepository;
     private final ProductVariantRepository productVariantRepository;
     private final UserRepository userRepository;
+    private final CartMapper cartMapper;
 
-    public Cart getCartBySessionId(String sessionId) {
+    public CartResponse getCartBySessionId(String sessionId) {
         validateSessionId(sessionId);
 
-        return cartRepository.findBySessionIdWithItems(sessionId)
+        Cart cart = cartRepository.findBySessionIdWithItems(sessionId)
                 .orElseThrow(() -> new CartNotFoundException(sessionId));
+
+        return cartMapper.toCartResponse(cart);
     }
 
-    public Cart getCartByUserId(Long userId) {
+    public CartResponse getCartByUserId(Long userId) {
         validateUserId(userId);
 
-        return cartRepository.findByUserIdWithItems(userId)
+        Cart cart = cartRepository.findByUserIdWithItems(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
+
+        return cartMapper.toCartResponse(cart);
     }
 
     @Transactional
-    public Cart findOrCreateCartBySessionId(String sessionId) {
+    public CartResponse findOrCreateCartBySessionId(String sessionId) {
         validateSessionId(sessionId);
 
-        return cartRepository.findBySessionIdWithItems(sessionId)
+        Cart cart = cartRepository.findBySessionIdWithItems(sessionId)
                 .orElseGet(() -> {
-                    Cart cart = new Cart();
-                    cart.setSessionId(sessionId);
-                    return cartRepository.save(cart);
+                    Cart newCart = new Cart();
+                    newCart.setSessionId(sessionId);
+                    return cartRepository.save(newCart);
                 });
+
+        return cartMapper.toCartResponse(cart);
     }
 
     @Transactional
-    public Cart findOrCreateCartByUserId(Long userId) {
+    public CartResponse findOrCreateCartByUserId(Long userId) {
         validateUserId(userId);
 
-        return cartRepository.findByUserIdWithItems(userId)
+        Cart cart = cartRepository.findByUserIdWithItems(userId)
                 .orElseGet(() -> {
                     User user = userRepository.findById(userId)
                             .orElseThrow(() -> new UserNotFoundException(userId));
 
-                    Cart cart = new Cart();
-                    cart.assignUser(user);
+                    Cart newCart = new Cart();
+                    newCart.assignUser(user);
 
-                    return cartRepository.save(cart);
+                    return cartRepository.save(newCart);
                 });
+
+        return cartMapper.toCartResponse(cart);
     }
 
     private void addProductToCart(Cart cart, ProductVariant variant, int quantity) {
         validateCart(cart);
-        if (variant == null) {
-            throw new IllegalArgumentException("variant must not be null");
-        }
+        validateProductVariant(variant);
         validateQuantity(quantity);
 
         Optional<CartItem> existingItem = cart.findItemByVariantId(variant.getId());
@@ -83,44 +92,43 @@ public class CartService {
     }
 
     @Transactional
-    public Cart addProductToCartBySessionId(String sessionId, Long variantId, int quantity) {
+    public CartResponse addProductToCartBySessionId(String sessionId, Long variantId, int quantity) {
         validateSessionId(sessionId);
         validateVariantId(variantId);
         validateQuantity(quantity);
 
-        Cart cart = findOrCreateCartBySessionId(sessionId);
+        Cart cart = cartRepository.findBySessionIdWithItems(sessionId)
+                .orElseThrow(() -> new CartNotFoundException(sessionId));
 
         ProductVariant variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new VariantNotFoundException(variantId));
 
         addProductToCart(cart, variant, quantity);
 
-        return cartRepository.save(cart);
+        return cartMapper.toCartResponse(cart);
     }
 
     @Transactional
-    public Cart addProductToCartByUserId(Long userId, Long variantId, int quantity) {
+    public CartResponse addProductToCartByUserId(Long userId, Long variantId, int quantity) {
         validateUserId(userId);
         validateVariantId(variantId);
         validateQuantity(quantity);
 
-        Cart cart = findOrCreateCartByUserId(userId);
+        Cart cart = cartRepository.findByUserIdWithItems(userId)
+                .orElseThrow(() -> new CartNotFoundException(userId));
 
         ProductVariant variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new VariantNotFoundException(variantId));
 
         addProductToCart(cart, variant, quantity);
 
-        return cartRepository.save(cart);
+        return cartMapper.toCartResponse(cart);
     }
 
     private void updateCartItemQuantity(Cart cart, Long variantId, int newQuantity) {
         validateCart(cart);
         validateVariantId(variantId);
-
-        if (newQuantity < 0) {
-            throw new IllegalArgumentException("quantity must be zero or greater");
-        }
+        validateNewQuantity(newQuantity);
 
         CartItem item = cart.findItemByVariantId(variantId)
                 .orElseThrow(() -> new IllegalArgumentException("cart item not found for variantId: " + variantId));
@@ -133,7 +141,7 @@ public class CartService {
     }
 
     @Transactional
-    public Cart updateCartItemQuantityBySessionId(String sessionId, Long variantId, int newQuantity) {
+    public CartResponse updateCartItemQuantityBySessionId(String sessionId, Long variantId, int newQuantity) {
         validateSessionId(sessionId);
         validateVariantId(variantId);
 
@@ -142,11 +150,11 @@ public class CartService {
 
         updateCartItemQuantity(cart, variantId, newQuantity);
 
-        return cartRepository.save(cart);
+        return cartMapper.toCartResponse(cart);
     }
 
     @Transactional
-    public Cart updateCartItemQuantityByUserId(Long userId, Long variantId, int newQuantity) {
+    public CartResponse updateCartItemQuantityByUserId(Long userId, Long variantId, int newQuantity) {
         validateUserId(userId);
         validateVariantId(variantId);
 
@@ -155,7 +163,7 @@ public class CartService {
 
         updateCartItemQuantity(cart, variantId, newQuantity);
 
-        return cartRepository.save(cart);
+        return cartMapper.toCartResponse(cart);
     }
 
     private void removeItemFromCart(Cart cart, Long variantId) {
@@ -167,7 +175,7 @@ public class CartService {
     }
 
     @Transactional
-    public Cart removeItemFromCartBySessionId(String sessionId, Long variantId) {
+    public CartResponse removeItemFromCartBySessionId(String sessionId, Long variantId) {
         validateSessionId(sessionId);
         validateVariantId(variantId);
 
@@ -176,11 +184,11 @@ public class CartService {
 
         removeItemFromCart(cart, variantId);
 
-        return cartRepository.save(cart);
+        return cartMapper.toCartResponse(cart);
     }
 
     @Transactional
-    public Cart removeItemFromCartByUserId(Long userId, Long variantId) {
+    public CartResponse removeItemFromCartByUserId(Long userId, Long variantId) {
         validateUserId(userId);
         validateVariantId(variantId);
 
@@ -189,7 +197,7 @@ public class CartService {
 
         removeItemFromCart(cart, variantId);
 
-        return cartRepository.save(cart);
+        return cartMapper.toCartResponse(cart);
     }
 
     private void clearCart(Cart cart) {
@@ -198,7 +206,7 @@ public class CartService {
     }
 
     @Transactional
-    public Cart clearCartBySessionId(String sessionId) {
+    public CartResponse clearCartBySessionId(String sessionId) {
         validateSessionId(sessionId);
 
         Cart cart = cartRepository.findBySessionIdWithItems(sessionId)
@@ -206,11 +214,11 @@ public class CartService {
 
         clearCart(cart);
 
-        return cartRepository.save(cart);
+        return cartMapper.toCartResponse(cart);
     }
 
     @Transactional
-    public Cart clearCartByUserId(Long userId) {
+    public CartResponse clearCartByUserId(Long userId) {
         validateUserId(userId);
 
         Cart cart = cartRepository.findByUserIdWithItems(userId)
@@ -218,7 +226,7 @@ public class CartService {
 
         clearCart(cart);
 
-        return cartRepository.save(cart);
+        return cartMapper.toCartResponse(cart);
     }
 
     private void validateSessionId(String sessionId) {
@@ -241,13 +249,25 @@ public class CartService {
 
     private void validateQuantity(int quantity) {
         if (quantity <= 0) {
-            throw new IllegalArgumentException("quantity must be greater than zero");
+            throw new IllegalArgumentException("quantity must be zero or greater");
         }
     }
 
     private void validateCart(Cart cart) {
         if (cart == null) {
             throw new IllegalArgumentException("cart must not be null");
+        }
+    }
+
+    private void validateProductVariant(ProductVariant variant) {
+        if (variant == null) {
+            throw new IllegalArgumentException("variant must not be null");
+        }
+    }
+
+    private void validateNewQuantity(int quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("quantity must be greater than zero");
         }
     }
 }
